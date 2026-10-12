@@ -1,0 +1,1604 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Laboratórium 118</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: aplikácia s tabuľkou ako centrom; z nej sa vchádza do mapy učiva, laboratórií a výziev. Mobil: spodná lišta. */
+:root{
+  --bg:#EDF1F3; --surface:#FFFFFF; --surface2:#E2E9ED; --ink:#0F2638; --muted:#566B79; --line:#C7D3DA;
+  --accent:#1D5BD0; --accent-ink:#FFFFFF; --warm:#C0612A; --good:#23864F; --bad:#C2412D;
+  --proton:#D9472E; --neutron:#8C99A5; --electron:#1D5BD0;
+  --mix:30%; --dimop:.18;
+  --f-display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B151C; --surface:#13212B; --surface2:#1B2D39; --ink:#E3ECF1; --muted:#93A7B4; --line:#2B404D;
+  --accent:#6E9DFF; --accent-ink:#0B151C; --warm:#EA955D; --good:#5CC48A; --bad:#F27A63;
+  --proton:#F07A5E; --neutron:#A4B0BB; --electron:#7FA8FF; --mix:40%; --dimop:.2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B151C; --surface:#13212B; --surface2:#1B2D39; --ink:#E3ECF1; --muted:#93A7B4; --line:#2B404D;
+  --accent:#6E9DFF; --accent-ink:#0B151C; --warm:#EA955D; --good:#5CC48A; --bad:#F27A63;
+  --proton:#F07A5E; --neutron:#A4B0BB; --electron:#7FA8FF; --mix:40%; --dimop:.2; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;text-wrap:balance;margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* ---------- top ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in oklab,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.brand-mark{width:38px;height:38px;border-radius:9px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:15px;line-height:1;position:relative}
+.brand-mark small{position:absolute;top:4px;left:5px;font-size:8px;font-family:var(--f-mono);font-weight:400}
+.brand h1{font-size:20px;font-weight:800;letter-spacing:-.01em}
+.brand p{margin:0;font-size:12px;color:var(--muted)}
+.seg{display:flex;background:var(--surface2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .15)}
+.tabs{display:flex;gap:4px}
+.tabs button{border:0;background:transparent;padding:8px 12px;border-radius:10px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:7px}
+.tabs button svg{width:18px;height:18px}
+.tabs button[aria-current="page"]{background:var(--ink);color:var(--bg)}
+@media (max-width:820px){
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);justify-content:space-around;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabs button{flex-direction:column;gap:2px;font-size:11px;padding:6px 8px;flex:1}
+  .tabs button[aria-current="page"]{background:var(--surface2);color:var(--ink)}
+  main{padding-bottom:84px!important}
+  .top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
+  .brand h1{font-size:18px}
+}
+
+main{max-width:1240px;margin:0 auto;padding-block:18px 40px;padding-inline:16px}
+.view{display:grid;gap:16px}
+.kicker{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lead{color:var(--muted);max-width:68ch;margin:4px 0 0}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:10px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn svg{width:16px;height:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* ---------- lens bar ---------- */
+.lensbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px;font-weight:700;font-size:14px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toolrow{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.search{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px 10px;min-width:0;flex:1 1 200px;max-width:320px}
+.search input{border:0;background:transparent;outline:none;min-width:0;width:100%;padding:4px 0}
+.lensctl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.lensctl[hidden]{display:none!important}
+.lensctl input[type=range]{flex:1 1 220px;accent-color:var(--accent)}
+.lensctl .big{font-family:var(--f-display);font-weight:800;font-size:22px;min-width:5.5ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:4px;display:inline-block;background:color-mix(in oklab,var(--c) 70%,var(--surface));border:1px solid var(--c)}
+.legend .grad{width:120px;height:12px;border-radius:6px;background:linear-gradient(90deg,hsl(220 70% 52%),hsl(140 60% 45%),hsl(45 85% 50%),hsl(5 75% 52%))}
+
+.banner{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 14px;border-radius:var(--r);background:color-mix(in oklab,var(--accent) 14%,var(--surface));border:1px solid color-mix(in oklab,var(--accent) 40%,var(--line))}
+.banner b{font-family:var(--f-display)}
+.banner[hidden]{display:none!important}
+.hunt{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:20;background:var(--ink);color:var(--bg);border:0}
+.hunt .q{font-family:var(--f-display);font-weight:700;font-size:18px;flex:1 1 260px}
+.hunt .btn{background:transparent;color:var(--bg);border-color:color-mix(in oklab,var(--bg) 40%,transparent)}
+.hunt .prog{font-family:var(--f-mono);font-size:13px;opacity:.8}
+
+/* ---------- periodic table ---------- */
+.tablewrap{overflow-x:auto;padding:4px 2px 10px;scrollbar-width:thin}
+.ptable{display:grid;grid-template-columns:20px repeat(18,minmax(36px,1fr));grid-template-rows:auto repeat(7,auto) 12px auto auto;gap:3px;min-width:0}
+.ptable.fit{grid-template-columns:12px repeat(18,minmax(0,1fr));gap:1.5px}
+.gh,.ph{font-family:var(--f-mono);font-size:10px;color:var(--muted);display:grid;place-items:center}
+.ph{place-items:center end;padding-right:3px}
+.cell{position:relative;aspect-ratio:1;border:1px solid color-mix(in oklab,var(--c,var(--line)) 55%,var(--line));border-radius:6px;padding:0;
+  background:color-mix(in oklab,var(--c,var(--surface2)) var(--mix),var(--surface));container-type:inline-size;display:grid;place-content:center;text-align:center;
+  transition:opacity .25s,transform .15s,filter .25s;animation:dropin .5s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i) * 6ms)}
+.cell:hover{transform:translateY(-2px);z-index:2;border-color:var(--ink)}
+.cell[data-dim="1"]{opacity:var(--dimop);filter:saturate(.2)}
+.cell .cz{position:absolute;top:2px;left:4px;font-family:var(--f-mono);font-size:clamp(7px,17cqi,11px);color:var(--muted)}
+.cell .cs{font-family:var(--f-display);font-weight:800;font-size:clamp(11px,36cqi,24px);line-height:1}
+.cell .cn{display:none;font-size:clamp(7px,13cqi,11px);line-height:1.1;margin-top:2px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:92cqi}
+.cell .cx{position:absolute;bottom:2px;right:3px;font-family:var(--f-mono);font-size:clamp(6px,15cqi,10px);font-weight:600}
+@container (min-width:62px){.cell .cn{display:block}}
+@container (max-width:30px){.cell .cz,.cell .cx{display:none}}
+.cell.ok{animation:pulseok .7s}
+.cell.no{animation:shake .4s}
+@keyframes dropin{from{transform:translateY(-14px) scale(.8);opacity:.25}}
+@keyframes pulseok{50%{box-shadow:0 0 0 6px var(--good);transform:scale(1.12)}}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.flab{grid-column:2 / 5;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;text-align:right;line-height:1.1}
+.infobox{grid-column:4 / 14;grid-row:2 / 5;display:flex;gap:14px;align-items:center;padding:6px 10px;overflow:hidden;min-width:0}
+.ib-tile{flex:none;width:clamp(54px,7vw,92px);aspect-ratio:1;border-radius:10px;display:grid;place-content:center;text-align:center;background:color-mix(in oklab,var(--c,var(--surface2)) var(--mix),var(--surface));border:2px solid var(--c,var(--line));position:relative}
+.ib-tile .s{font-family:var(--f-display);font-weight:800;font-size:clamp(20px,3vw,38px);line-height:1}
+.ib-tile .z{position:absolute;top:4px;left:6px;font-family:var(--f-mono);font-size:11px}
+.ib-txt{min-width:0;font-size:clamp(11px,1.2vw,14px);line-height:1.35}
+.ib-txt b{font-family:var(--f-display);font-size:1.25em;display:block}
+.ib-txt p{margin:2px 0 0;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.scrollhint{font-size:12px;color:var(--muted);display:none}
+@media (max-width:820px){.scrollhint{display:block}}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgb(5 12 18 / .5);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.scrim[hidden]{display:none!important}
+.sheet{background:var(--bg);width:min(760px,100%);max-height:92%;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom,0px));animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@media (min-width:821px){.scrim{align-items:center}.sheet{border-radius:20px;max-height:88%;padding:22px 24px}}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sh-head{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start}
+.bigtile{width:96px;aspect-ratio:1;border-radius:14px;display:grid;place-content:center;text-align:center;position:relative;background:color-mix(in oklab,var(--c) var(--mix),var(--surface));border:2px solid var(--c)}
+.bigtile .s{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1}
+.bigtile .z{position:absolute;top:6px;left:8px;font-family:var(--f-mono);font-size:13px}
+.bigtile .m{position:absolute;bottom:5px;left:0;right:0;font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.sh-head h2{font-size:30px}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--surface2);color:var(--ink)}
+.tag.c{background:color-mix(in oklab,var(--c) 30%,var(--surface))}
+.iconbtn{border:1px solid var(--line);background:var(--surface);width:38px;height:38px;border-radius:10px;display:grid;place-items:center}
+.iconbtn svg{width:18px;height:18px}
+.sh-body{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:18px;margin-top:16px}
+@media (max-width:640px){.sh-body{grid-template-columns:1fr}}
+.bohr{width:100%;aspect-ratio:1;max-width:260px;justify-self:center;background:var(--surface);border-radius:var(--r);border:1px solid var(--line)}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.fact .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fact .v{font-family:var(--f-mono);font-weight:600;font-size:15px;word-break:break-word}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-top:10px}
+.note h3{font-size:15px;margin-bottom:4px}
+.note p{margin:0}
+.note.sk{border-color:color-mix(in oklab,var(--warm) 50%,var(--line));background:color-mix(in oklab,var(--warm) 9%,var(--surface))}
+.navrow{display:flex;justify-content:space-between;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+/* ---------- map ---------- */
+.mapgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:1100px){.mapgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.mapgrid{grid-template-columns:1fr}}
+.line{position:relative;padding-left:26px}
+.line::before{content:"";position:absolute;left:9px;top:46px;bottom:12px;width:5px;border-radius:3px;background:var(--lc)}
+.line h2{font-size:20px;margin-bottom:2px}
+.line .sub{font-size:13px;color:var(--muted);margin-bottom:12px}
+.line h2::before{content:"";position:absolute;left:0;top:4px;width:23px;height:23px;border-radius:50%;background:var(--lc)}
+.station{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.station::before{content:"";position:absolute;left:-23px;top:16px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:3px solid var(--lc)}
+.station h3{font-size:16px}
+.station .std{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.station p{margin:4px 0 8px;font-size:14px;color:var(--muted)}
+.minis{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.mini{width:30px;height:30px;border-radius:6px;font-family:var(--f-display);font-weight:800;font-size:13px;border:1px solid var(--c);background:color-mix(in oklab,var(--c) var(--mix),var(--surface));padding:0}
+
+/* ---------- labs ---------- */
+.labcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.labcard{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:0;overflow:hidden;display:flex;flex-direction:column}
+.labcard:hover{border-color:var(--ink)}
+.labcard .art{height:120px;background:var(--surface2);display:grid;place-items:center}
+.labcard .art svg{height:96px;width:auto}
+.labcard .tx{padding:12px 14px 14px;display:grid;gap:4px}
+.labcard h3{font-size:19px}
+.labcard p{margin:0;font-size:14px;color:var(--muted)}
+.stage{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.stage{grid-template-columns:1fr}}
+.cv{width:100%;display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);touch-action:manipulation}
+.panel{display:grid;gap:12px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;min-width:0}
+.card h3{font-size:16px;margin-bottom:6px}
+.caption{font-size:15px;min-height:3em}
+.ctlrow{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.ctlrow:last-child{border-bottom:0}
+.ctlrow .lbl{display:flex;align-items:center;gap:8px;font-weight:700}
+.dot{width:14px;height:14px;border-radius:50%;display:inline-block;flex:none}
+.stepbtn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:20px;font-weight:700;line-height:1}
+.ctlrow .n{font-family:var(--f-mono);font-size:20px;font-weight:600;min-width:2.2ch;text-align:center}
+.readout{font-family:var(--f-display);font-size:30px;font-weight:800;line-height:1}
+.readout sup,.readout sub{font-size:.45em;font-family:var(--f-mono)}
+.nota{display:inline-flex;align-items:center;gap:1px}
+.nota .ss{display:inline-flex;flex-direction:column;font-family:var(--f-mono);font-size:13px;line-height:1.05;text-align:right;margin-right:2px}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--surface2)}
+.pill.g{background:color-mix(in oklab,var(--good) 22%,var(--surface));color:var(--ink)}
+.pill.b{background:color-mix(in oklab,var(--bad) 22%,var(--surface));color:var(--ink)}
+.pill.w{background:color-mix(in oklab,var(--warm) 22%,var(--surface));color:var(--ink)}
+.fb{font-weight:700;min-height:1.5em}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.subtabs{display:flex;gap:6px;flex-wrap:wrap}
+.eq{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:center;font-family:var(--f-display);font-size:22px;font-weight:700}
+.coef{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
+.coef .cbtns{display:flex;gap:3px}
+.coef .cbtns button{width:30px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--surface2);font-weight:800;padding:0}
+.coef .cv2{font-family:var(--f-mono);color:var(--accent);font-size:24px}
+.cnt{width:100%;border-collapse:collapse;font-size:14px}
+.cnt td,.cnt th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:center}
+.cnt th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.swatches button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}
+.swatches button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.phscale{height:22px;border-radius:6px;position:relative;background:linear-gradient(90deg,#D7263D,#E0457B 15%,#A24CC2 33%,#6A5ACD 48%,#3F7FD6 56%,#2BA89A 70%,#6CC24A 84%,#E8D33F)}
+.phscale .mk{position:absolute;top:-6px;width:4px;height:34px;background:var(--ink);border-radius:2px;transition:left .8s;transform:translateX(-2px)}
+.phticks{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin-top:4px}
+details.why{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+details.why summary{font-weight:700;cursor:pointer}
+details.why p{margin:8px 0 0;color:var(--muted)}
+select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.enbar{height:14px;border-radius:7px;position:relative;background:linear-gradient(90deg,var(--good) 0 12%,var(--accent) 12% 52%,var(--warm) 52%)}
+.enbar .mk{position:absolute;top:-5px;width:4px;height:24px;background:var(--ink);transition:left .5s;border-radius:2px}
+.enlab{display:flex;font-size:11px;color:var(--muted);margin-top:4px}
+.enlab span:nth-child(1){width:12%} .enlab span:nth-child(2){width:40%}
+
+/* ---------- intro overlay ---------- */
+.intro{position:fixed;inset:0;z-index:80;background:var(--ink);color:var(--bg);display:grid;place-items:center;padding:24px;text-align:center}
+.intro[hidden]{display:none!important}
+.intro .ic svg{width:min(220px,60vw);height:auto}
+.intro h2{font-size:clamp(28px,6vw,48px);margin:14px 0 8px;animation:rise .6s .15s backwards}
+.intro p{max-width:46ch;margin:0 auto 18px;opacity:.85;font-size:18px;animation:rise .6s .35s backwards}
+.intro .bar{width:180px;height:4px;border-radius:2px;background:color-mix(in oklab,var(--bg) 25%,transparent);margin:0 auto 18px;overflow:hidden}
+.intro .bar i{display:block;height:100%;background:var(--bg);animation:fill 3.4s linear forwards}
+.intro .btn{background:var(--bg);color:var(--ink);border:0}
+@keyframes rise{from{transform:translateY(14px);opacity:0}}
+@keyframes fill{from{width:0}to{width:100%}}
+.spin{transform-origin:50% 50%;animation:spin 3s linear infinite}
+.spin2{transform-origin:50% 50%;animation:spin 5s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bob{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+
+/* ---------- play ---------- */
+.playgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.qbox{max-width:720px}
+.qtext{font-family:var(--f-display);font-size:22px;font-weight:700;margin:6px 0 14px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:2px solid var(--line);background:var(--surface);padding:12px 14px;border-radius:12px;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.right{border-color:var(--good);background:color-mix(in oklab,var(--good) 15%,var(--surface))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in oklab,var(--bad) 12%,var(--surface))}
+.expl{margin-top:12px;color:var(--muted)}
+.progressbar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.progressbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+
+/* ---------- galvanický článok ---------- */
+.ledbox{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);line-height:1.15}
+.led{--b:0;width:30px;height:38px;border-radius:15px 15px 4px 4px;background:color-mix(in oklab,#C2412D 25%,var(--surface2));border:2px solid var(--line);transition:background .3s,box-shadow .3s}
+.led.on{background:#FF3B2F;border-color:#FF7A6E;box-shadow:0 0 calc(10px + 26px*var(--b)) calc(2px + 8px*var(--b)) rgb(255 59 47 / .65)}
+.geq{display:grid;gap:4px;margin-top:6px;font-family:var(--f-mono);font-size:14px}
+.geq .kicker{display:inline-block;min-width:14ch}
+/* ---------- kartičky ---------- */
+.fcard{display:block;width:min(420px,100%);aspect-ratio:4/3;margin:6px auto 0;border:0;padding:0;background:transparent;perspective:1100px}
+.fc-in{position:relative;display:block;width:100%;height:100%;transition:transform .55s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.fcard.on .fc-in{transform:rotateY(180deg)}
+.fc-f,.fc-b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px;border-radius:20px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:2px solid var(--c);background:color-mix(in oklab,var(--c) 18%,var(--surface));box-shadow:0 10px 30px rgb(0 0 0 / .12)}
+.fc-b{transform:rotateY(180deg);background:var(--surface)}
+.fc-big{font-family:var(--f-display);font-weight:800;font-size:clamp(56px,16vw,96px);line-height:1}
+.fc-word{font-size:clamp(30px,8vw,46px)}
+.fc-hint{color:var(--muted);font-size:15px}
+.fc-tap{position:absolute;bottom:10px;font-size:12px;color:var(--muted);font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em}
+.fc-name{font-family:var(--f-display);font-weight:800;font-size:26px}
+.fc-lat{font-size:18px;color:var(--muted)}
+.fc-meta{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.fc-ety{font-size:13px;text-align:center;max-width:34ch;color:var(--ink);background:var(--surface2);border-radius:10px;padding:4px 10px;margin-top:4px}
+.fc-count{text-align:center;font-size:13px;color:var(--muted)}
+.fc-btns{justify-content:center;margin-top:12px}.fc-btns .btn{min-width:120px;justify-content:center;padding:12px 16px}
+#cardbox,#printbox{max-width:880px}
+/* ---------- tlač ---------- */
+.paperwrap{overflow:auto;border-radius:var(--r);border:1px solid var(--line);background:var(--surface2);padding:12px}
+.paperwrap .paper{max-width:794px;margin:0 auto;box-shadow:0 4px 18px rgb(0 0 0 / .15);min-width:600px}
+@media print{
+  html.printing body>*:not(main){display:none!important}
+  html.printing main>*:not(#v-play),html.printing #playhome,html.printing #quizbox,html.printing #cardbox,html.printing #printbox>*:not(.paperwrap){display:none!important}
+  html.printing,html.printing body{background:#fff!important}
+  html.printing main{padding:0!important;max-width:none}
+  html.printing .paperwrap{border:0;padding:0;background:#fff;overflow:visible}
+  html.printing .paperwrap .paper{box-shadow:none;max-width:none;min-width:0;padding:0}
+}
+/* ---------- vložené v iframe ---------- */
+.fsbtn{flex:none}
+html.emb .top-in{padding-block:8px}
+html.emb .brand p{display:none}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><small>118</small>Lab</div>
+      <div><h1>Laboratórium 118</h1><p>Tabuľka prvkov ako mapa chémie · ŠVP Človek a príroda</p></div>
+    </div>
+    <div class="seg" role="group" aria-label="Úroveň">
+      <button data-lvl="1">1.–5. roč.</button>
+      <button data-lvl="2">ZŠ 6.–9.</button>
+      <button data-lvl="3">SŠ</button>
+    </div>
+    <nav class="tabs" aria-label="Sekcie">
+      <button data-view="table" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="9.5" y="10" width="5" height="5" rx="1"/><rect x="16" y="10" width="5" height="5" rx="1"/><path d="M6 19h12"/></svg>Tabuľka</button>
+      <button data-view="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="19" r="2"/><path d="M5 7v4a1 1 0 0 0 1 1h4M14 12h4a1 1 0 0 1 1 1v4"/></svg>Mapa učiva</button>
+      <button data-view="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg>Laboratórium</button>
+      <button data-view="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>Výzvy</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ============ TABLE ============ -->
+  <section class="view" id="v-table">
+    <div class="banner hunt" id="huntbar" hidden>
+      <span class="prog mono" id="huntprog"></span>
+      <span class="q" id="huntq"></span>
+      <span class="fb" id="huntfb" style="color:inherit"></span>
+      <button class="btn sm" id="huntskip">Preskočiť</button>
+      <button class="btn sm" id="huntstop">Ukončiť</button>
+    </div>
+    <div class="banner" id="focusbar" hidden>
+      <span class="kicker">Téma z mapy učiva</span><b id="focustitle"></b>
+      <span id="focusinfo" style="color:var(--muted);font-size:14px"></span>
+      <button class="btn sm" id="focusclear" style="margin-left:auto">Zrušiť zvýraznenie</button>
+    </div>
+    <div class="lensbar" id="lensbar" role="group" aria-label="Pohľad na tabuľku"></div>
+    <div class="toolrow">
+      <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Hľadaj: železo, Fe, ferrum, 26…" autocomplete="off"></label>
+      <div class="legend" id="legend"></div>
+      <button class="btn sm" id="latbtn" aria-pressed="false" style="margin-left:auto">Latinské názvy</button><button class="btn sm" id="fitbtn">Celá tabuľka na šírku</button>
+    </div>
+    <div class="lensctl" id="ctl-state" hidden>
+      <span class="big mono" id="tval">25 °C</span>
+      <input id="trange" type="range" min="-273" max="4000" step="1" value="25" aria-label="Teplota">
+      <div class="row">
+        <button class="btn sm" data-t="-273">absolútna nula</button>
+        <button class="btn sm" data-t="-196">−196 °C (kvapalný dusík)</button>
+        <button class="btn sm" data-t="25">izbová</button>
+        <button class="btn sm" data-t="1000">1 000 °C</button>
+        <button class="btn sm" data-t="3000">3 000 °C</button>
+      </div>
+    </div>
+    <div class="lensctl" id="ctl-year" hidden>
+      <span class="big mono" id="yval">1869</span>
+      <input id="yrange" type="range" min="1500" max="2026" step="1" value="1869" aria-label="Rok">
+      <button class="btn sm" id="yplay"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4v16l13-8z"/></svg>Prehraj dejiny</button>
+      <span id="ycount" style="color:var(--muted);font-size:14px"></span>
+    </div>
+    <div class="scrollhint">Tabuľku môžeš posúvať do strán. Ťukni na prvok a otvorí sa jeho karta.</div>
+    <div class="tablewrap"><div class="ptable" id="ptable"></div></div>
+  </section>
+
+  <!-- ============ MAP ============ -->
+  <section class="view" id="v-map" hidden>
+    <div>
+      <div class="kicker">Mapa učiva</div>
+      <h2 style="font-size:clamp(26px,4vw,38px)">Kde sa chémia začína a kam vedie</h2>
+      <p class="lead">Každá stanica je téma zo vzdelávacích štandardov oblasti Človek a príroda. Ťukni na prvky, zvýrazni ich v tabuľke alebo otvor laboratórium, ktoré k téme patrí.</p>
+    </div>
+    <div class="mapgrid" id="mapgrid"></div>
+  </section>
+
+  <!-- ============ LAB ============ -->
+  <section class="view" id="v-lab" hidden>
+    <div id="labhome" class="view">
+      <div>
+        <div class="kicker">Laboratórium</div>
+        <h2 style="font-size:clamp(26px,4vw,38px)">Pokusy, ktoré sa dajú pozorovať zblízka</h2>
+        <p class="lead">Sedem animovaných pracovísk. Každé ukazuje, čo sa deje s časticami, a končí úlohou, pri ktorej treba premýšľať.</p>
+      </div>
+      <div class="labcards" id="labcards"></div>
+    </div>
+    <div id="labstage" class="view" hidden>
+      <div class="row"><button class="btn sm" id="labback"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg>Všetky pracoviská</button><span class="kicker" id="labstd"></span></div>
+      <h2 id="labtitle" style="font-size:clamp(24px,3.6vw,34px)"></h2>
+      <div id="labmount"></div>
+    </div>
+  </section>
+
+  <!-- ============ PLAY ============ -->
+  <section class="view" id="v-play" hidden>
+    <div id="playhome" class="view">
+      <div>
+        <div class="kicker">Výzvy</div>
+        <h2 style="font-size:clamp(26px,4vw,38px)">Over si, čo vieš</h2>
+        <p class="lead">Úlohy sa pri každom spustení skladajú nanovo – iné prvky, iné čísla, iné poradie. Náročnosť sa riadi zvolenou úrovňou hore.</p>
+      </div>
+      <div class="playgrid">
+        <div class="card"><h3 style="font-size:20px">Hľadačka v tabuľke</h3><p style="color:var(--muted);margin:0 0 10px">8 úloh – nájdi správny prvok priamo v tabuľke. Prvá trafa sa počíta.</p><div class="row"><button class="btn pri" id="starthunt">Spustiť hľadačku</button><span class="pill" id="besthunt"></span></div></div>
+        <div class="card"><h3 style="font-size:20px">Kvíz s vysvetlením</h3><p style="color:var(--muted);margin:0 0 10px">10 otázok od zapamätania po uvažovanie. Po každej odpovedi vysvetlenie.</p><div class="row"><button class="btn pri" id="startquiz">Spustiť kvíz</button><span class="pill" id="bestquiz"></span></div></div>
+        <div class="card"><h3 style="font-size:20px">Kartičky na opakovanie</h3><p style="color:var(--muted);margin:0 0 10px">Značka, názov aj latinský názov. Čo nevieš, vráti sa o pár kôl neskôr.</p><button class="btn pri" id="startcards">Precvičovať kartičky</button></div>
+        <div class="card"><h3 style="font-size:20px">Tlač pre triedu</h3><p style="color:var(--muted);margin:0 0 10px">Slepá tabuľka, pracovný list s riešením a kartičky na vystrihnutie – na hodinu bez tabletov.</p><button class="btn" id="startprint">Pripraviť na tlač</button></div>
+        <div class="card"><h3 style="font-size:20px">Výzvy v laboratóriách</h3><p style="color:var(--muted);margin:0 0 10px">Atómová dielňa, rovnice, plameňové skúšky a galvanický článok majú vlastné úlohy s náhodným zadaním.</p><button class="btn" data-golab="atom">Do atómovej dielne</button></div>
+      </div>
+    </div>
+    <div id="quizbox" class="view qbox" hidden></div>
+    <div id="cardbox" class="view" hidden tabindex="-1"></div>
+    <div id="printbox" class="view" hidden></div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shname"></div></div>
+<div class="intro" id="intro" hidden></div>
+
+<script>
+"use strict";
+/* ================= helpers ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LS={get(k,d){try{const v=localStorage.getItem('lab118:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('lab118:'+k,JSON.stringify(v))}catch(e){}}};
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const SUPM={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','+':'⁺','-':'⁻'};
+const SUBM={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+const sup=s=>String(s).split('').map(c=>SUPM[c]||c).join('');
+const subf=s=>String(s).replace(/\d/g,d=>SUBM[d]);
+const fmt=(n,d=1)=>Number(n).toLocaleString('sk-SK',{maximumFractionDigits:d});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let _cc={t:0,v:{}};
+function C(){const now=performance.now();if(now-_cc.t>400){const cs=getComputedStyle(document.documentElement);const v={};['bg','surface','surface2','ink','muted','line','accent','warm','good','bad','proton','neutron','electron'].forEach(k=>v[k]=cs.getPropertyValue('--'+k).trim());_cc={t:now,v}}return _cc.v}
+function fitCanvas(cv){const r=cv.getBoundingClientRect();const d=Math.min(2,devicePixelRatio||1);const w=Math.max(10,Math.round(r.width)),h=Math.max(10,Math.round(r.height));if(cv.width!==w*d||cv.height!==h*d){cv.width=w*d;cv.height=h*d}const ctx=cv.getContext('2d');ctx.setTransform(d,0,0,d,0,0);return{ctx,w,h}}
+function loop(fn){let id,last=performance.now(),on=true;function f(t){if(!on)return;const dt=Math.min(.05,(t-last)/1000);last=t;fn(dt,t/1000);id=requestAnimationFrame(f)}id=requestAnimationFrame(f);return()=>{on=false;cancelAnimationFrame(id)}}
+function circle(ctx,x,y,r,fill,stroke,lw){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw||1;ctx.stroke()}}
+function speak(text){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='sk-SK';const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('sk'));if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
+
+/* ================= data ================= */
+const RAW=`H|vodík|1.008|nm
+He|hélium|4.0026|ng
+Li|lítium|6.94|am
+Be|berýlium|9.0122|ae
+B|bór|10.81|ml
+C|uhlík|12.011|nm
+N|dusík|14.007|nm
+O|kyslík|15.999|nm
+F|fluór|18.998|hl
+Ne|neón|20.180|ng
+Na|sodík|22.990|am
+Mg|horčík|24.305|ae
+Al|hliník|26.982|pt
+Si|kremík|28.085|ml
+P|fosfor|30.974|nm
+S|síra|32.06|nm
+Cl|chlór|35.45|hl
+Ar|argón|39.948|ng
+K|draslík|39.098|am
+Ca|vápnik|40.078|ae
+Sc|skandium|44.956|tm
+Ti|titán|47.867|tm
+V|vanád|50.942|tm
+Cr|chróm|51.996|tm
+Mn|mangán|54.938|tm
+Fe|železo|55.845|tm
+Co|kobalt|58.933|tm
+Ni|nikel|58.693|tm
+Cu|meď|63.546|tm
+Zn|zinok|65.38|tm
+Ga|gálium|69.723|pt
+Ge|germánium|72.630|ml
+As|arzén|74.922|ml
+Se|selén|78.971|nm
+Br|bróm|79.904|hl
+Kr|kryptón|83.798|ng
+Rb|rubídium|85.468|am
+Sr|stroncium|87.62|ae
+Y|ytrium|88.906|tm
+Zr|zirkónium|91.224|tm
+Nb|nióbium|92.906|tm
+Mo|molybdén|95.95|tm
+Tc|technécium|[98]|tm
+Ru|ruténium|101.07|tm
+Rh|ródium|102.91|tm
+Pd|paládium|106.42|tm
+Ag|striebro|107.87|tm
+Cd|kadmium|112.41|tm
+In|indium|114.82|pt
+Sn|cín|118.71|pt
+Sb|antimón|121.76|ml
+Te|telúr|127.60|ml
+I|jód|126.90|hl
+Xe|xenón|131.29|ng
+Cs|cézium|132.91|am
+Ba|bárium|137.33|ae
+La|lantán|138.91|ln
+Ce|cér|140.12|ln
+Pr|prazeodým|140.91|ln
+Nd|neodým|144.24|ln
+Pm|prométium|[145]|ln
+Sm|samárium|150.36|ln
+Eu|európium|151.96|ln
+Gd|gadolínium|157.25|ln
+Tb|terbium|158.93|ln
+Dy|dysprózium|162.50|ln
+Ho|holmium|164.93|ln
+Er|erbium|167.26|ln
+Tm|túlium|168.93|ln
+Yb|yterbium|173.05|ln
+Lu|lutécium|174.97|ln
+Hf|hafnium|178.49|tm
+Ta|tantal|180.95|tm
+W|volfrám|183.84|tm
+Re|rénium|186.21|tm
+Os|osmium|190.23|tm
+Ir|irídium|192.22|tm
+Pt|platina|195.08|tm
+Au|zlato|196.97|tm
+Hg|ortuť|200.59|tm
+Tl|tálium|204.38|pt
+Pb|olovo|207.2|pt
+Bi|bizmut|208.98|pt
+Po|polónium|[209]|pt
+At|astát|[210]|hl
+Rn|radón|[222]|ng
+Fr|francium|[223]|am
+Ra|rádium|[226]|ae
+Ac|aktínium|[227]|an
+Th|tórium|232.04|an
+Pa|protaktínium|231.04|an
+U|urán|238.03|an
+Np|neptúnium|[237]|an
+Pu|plutónium|[244]|an
+Am|amerícium|[243]|an
+Cm|kúrium|[247]|an
+Bk|berkélium|[247]|an
+Cf|kalifornium|[251]|an
+Es|einsteinium|[252]|an
+Fm|fermium|[257]|an
+Md|mendelévium|[258]|an
+No|nobélium|[259]|an
+Lr|lawrencium|[266]|an
+Rf|rutherfordium|[267]|tm
+Db|dubnium|[268]|tm
+Sg|seaborgium|[269]|tm
+Bh|bohrium|[270]|tm
+Hs|hassium|[277]|tm
+Mt|meitnerium|[278]|tm
+Ds|darmstadtium|[281]|tm
+Rg|röntgenium|[282]|tm
+Cn|kopernícium|[285]|tm
+Nh|nihónium|[286]|pt
+Fl|flerovium|[289]|pt
+Mc|moscovium|[290]|pt
+Lv|livermorium|[293]|pt
+Ts|tennessín|[294]|hl
+Og|oganesón|[294]|ng`;
+const EN=[2.20,0,0.98,1.57,2.04,2.55,3.04,3.44,3.98,0,0.93,1.31,1.61,1.90,2.19,2.58,3.16,0,0.82,1.00,1.36,1.54,1.63,1.66,1.55,1.83,1.88,1.91,1.90,1.65,1.81,2.01,2.18,2.55,2.96,3.00,0.82,0.95,1.22,1.33,1.6,2.16,1.9,2.2,2.28,2.20,1.93,1.69,1.78,1.96,2.05,2.1,2.66,2.6,0.79,0.89,1.10,1.12,1.13,1.14,1.13,1.17,1.2,1.2,1.1,1.22,1.23,1.24,1.25,1.1,1.27,1.3,1.5,2.36,1.9,2.2,2.20,2.28,2.54,2.00,1.62,1.87,2.02,2.0,2.2,2.2,0.7,0.9,1.1,1.3,1.5,1.38,1.36,1.28,1.13,1.28,1.3,1.3,1.3,1.3,1.3,1.3];
+const MP=[14.01,-1,453.7,1560,2349,3823,63.15,54.36,53.53,24.56,370.9,923,933.5,1687,317.3,388.4,171.6,83.8,336.5,1115,1814,1941,2183,2180,1519,1811,1768,1728,1357.8,692.7,302.9,1211,887,494,265.8,115.8,312.5,1050,1799,2128,2750,2896,2430,2607,2237,1828,1235,594.2,429.7,505.1,903.8,722.7,386.9,161.4,301.6,1000,1193,1068,1208,1297,1315,1345,1099,1585,1629,1680,1734,1802,1818,1097,1925,2506,3290,3695,3459,3306,2719,2041,1337,234.3,577,600.6,544.6,527,575,202,300,973,1323,2023,1841,1405,917,913,1449,1613,1259,1173,1133];
+const BP=[20.28,4.22,1615,2742,4200,4098,77.36,90.2,85.03,27.07,1156,1363,2792,3538,550,717.8,239.1,87.3,1032,1757,3109,3560,3680,2944,2334,3134,3200,3186,2835,1180,2477,3106,887,958,332,119.9,961,1655,3609,4682,5017,4912,4538,4423,3968,3236,2435,1040,2345,2875,1908,1261,457.4,165.1,944,2170,3737,3716,3793,3347,3273,2067,1802,3546,3503,2840,2993,3141,2223,1469,3675,4876,5731,5828,5869,5285,4701,4098,3129,629.9,1746,2022,1837,1235,610,211.5,950,2010,3471,5061,4300,4404,4273,3501,2880,3383];
+const YR=[1766,1868,1817,1798,1808,0,1772,1774,1886,1898,1807,1755,1825,1824,1669,0,1774,1894,1807,1808,1879,1791,1801,1797,1774,0,1735,1751,0,1746,1875,1886,1250,1817,1826,1898,1861,1790,1794,1789,1801,1778,1937,1844,1804,1802,0,1817,1863,0,0,1782,1811,1898,1860,1772,1839,1803,1885,1885,1945,1879,1901,1880,1843,1886,1878,1843,1879,1878,1907,1923,1802,1783,1925,1803,1803,1748,0,0,1861,0,1753,1898,1940,1899,1939,1898,1899,1829,1913,1789,1940,1940,1944,1944,1949,1950,1952,1952,1955,1966,1961,1969,1970,1974,1981,1984,1982,1994,1994,1996,2004,1999,2003,2000,2010,2002];
+
+const CAT={
+ am:{n:'alkalické kovy',c:'#E2553A'}, ae:{n:'kovy alkalických zemín',c:'#E89B22'},
+ tm:{n:'prechodné kovy',c:'#4F86C6'}, pt:{n:'ostatné kovy',c:'#7FA0A8'},
+ ml:{n:'polokovy',c:'#8E7CC3'}, nm:{n:'nekovy',c:'#3FAE6A'}, hl:{n:'halogény',c:'#1FA9A9'},
+ ng:{n:'vzácne plyny',c:'#D265A6'}, ln:{n:'lantanoidy',c:'#C48A4E'}, an:{n:'aktinoidy',c:'#A65B5B'}};
+const KIND={kov:{n:'kov',c:'#4F86C6'},polokov:{n:'polokov',c:'#8E7CC3'},nekov:{n:'nekov',c:'#3FAE6A'}};
+const STATEC={s:{n:'pevné',c:'#7C8C99'},l:{n:'kvapalné',c:'#2F7FE0'},g:{n:'plynné',c:'#E59A2B'},u:{n:'nevieme',c:'#9AA5AE'}};
+const BLOCKC={s:'#E2553A',p:'#3FAE6A',d:'#4F86C6',f:'#C48A4E'};
+const VALC=['','#E2553A','#E89B22','','','','','','','','','','','#7FA0A8','#8E7CC3','#3FAE6A','#1FA9A9','#4F86C6','#D265A6'];
+
+function pos(z){
+  let p=z<=2?1:z<=10?2:z<=18?3:z<=36?4:z<=54?5:z<=86?6:7, g=null,row=p,col;
+  if(z===1)g=1;else if(z===2)g=18;
+  else if(p===2||p===3){const i=z-(p===2?3:11);g=i<2?i+1:i+11}
+  else if(p===4||p===5){g=z-(p===4?19:37)+1}
+  else if(p===6){if(z<=57)g=z-54;else if(z<=71){row=9;col=z-58+4}else g=z-68}
+  else {if(z<=89)g=z-86;else if(z<=103){row=10;col=z-90+4}else g=z-100}
+  if(g)col=g;
+  return{period:p,group:g,row,col};
+}
+const ORDER=['1s','2s','2p','3s','3p','4s','3d','4p','5s','4d','5p','6s','4f','5d','6p','7s','5f','6d','7p'];
+const CAP={s:2,p:6,d:10,f:14};
+const EXC={24:{'4s':-1,'3d':1},29:{'4s':-1,'3d':1},41:{'5s':-1,'4d':1},42:{'5s':-1,'4d':1},44:{'5s':-1,'4d':1},45:{'5s':-1,'4d':1},46:{'5s':-2,'4d':2},47:{'5s':-1,'4d':1},57:{'4f':-1,'5d':1},58:{'4f':-1,'5d':1},64:{'4f':-1,'5d':1},78:{'6s':-1,'5d':1},79:{'6s':-1,'5d':1},89:{'5f':-1,'6d':1},90:{'5f':-2,'6d':2},91:{'5f':-1,'6d':1},92:{'5f':-1,'6d':1},93:{'5f':-1,'6d':1},96:{'5f':-1,'6d':1},103:{'6d':-1,'7p':1}};
+function aufbau(z){const c={};let r=z;for(const o of ORDER){if(r<=0)break;const k=Math.min(CAP[o[1]],r);c[o]=k;r-=k}return c}
+function config(z){const c=aufbau(z);const x=EXC[z];if(x)for(const k in x)c[k]=(c[k]||0)+x[k];return c}
+function shells(z){const c=config(z);const s=[];for(const k in c){const n=+k[0];s[n-1]=(s[n-1]||0)+c[k]}return[...s].map(v=>v||0)}
+const NG=[2,10,18,36,54,86];
+function cfgStr(z){const c=config(z);let core=0;for(const g of NG)if(g<z)core=g;const cc=core?aufbau(core):{};const parts=ORDER.filter(o=>(c[o]||0)-(cc[o]||0)>0).map(o=>o+sup((c[o]||0)-(cc[o]||0)));return(core?'['+E[core-1].s+'] ':'')+parts.join(' ')}
+
+const LAT=["Hydrogenium", "Helium", "Lithium", "Beryllium", "Borum", "Carboneum", "Nitrogenium", "Oxygenium", "Fluorum", "Neon", "Natrium", "Magnesium", "Aluminium", "Silicium", "Phosphorus", "Sulphur", "Chlorum", "Argon", "Kalium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganum", "Ferrum", "Cobaltum", "Niccolum", "Cuprum", "Zincum", "Gallium", "Germanium", "Arsenicum", "Selenium", "Bromum", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdaenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Argentum", "Cadmium", "Indium", "Stannum", "Stibium", "Tellurium", "Iodum", "Xenon", "Caesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium", "Hafnium", "Tantalum", "Wolframium", "Rhenium", "Osmium", "Iridium", "Platinum", "Aurum", "Hydrargyrum", "Thallium", "Plumbum", "Bismuthum", "Polonium", "Astatum", "Radon", "Francium", "Radium", "Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessium", "Oganesson"];
+const ETYM={"H": "hydrogenium = „tvoriaci vodu“ (z gréčtiny)", "C": "carbo = uhlie", "N": "nitrogenium = „tvoriaci liadok“", "O": "oxygenium = „tvoriaci kyselinu“", "Na": "natron = sóda", "K": "z arabského al-qalí = popol z rastlín (potaš)", "P": "phosphorus = „nositeľ svetla“ – biely fosfor v tme svieti", "S": "sulphur = síra", "Fe": "ferrum = železo", "Cu": "cuprum – podľa ostrova Cyprus, kde sa v staroveku ťažila meď", "Ag": "argentum = lesklý, biely kov; odtiaľ aj názov Argentíny", "Au": "aurum – príbuzné so slovom aurora (ranná žiara)", "Hg": "hydrargyrum = „tekuté striebro“", "Pb": "plumbum = olovo; odtiaľ anglické plumber (inštalatér) – rúry boli kedysi olovené", "Sn": "stannum = cín", "Sb": "stibium = antimón", "W": "wolframium – podľa nemeckého názvu nerastu volframit", "Mn": "z magnesia nigra – „čierna magnézia“, tmavý nerast z oblasti Magnézia", "Ni": "niccolum – z nemeckého Kupfernickel", "Cl": "chlóros = žltozelený (farba plynu)", "I": "iodés = fialový (farba pár jódu)", "Br": "brómos = zápach"};
+const E=RAW.trim().split('\n').map((l,i)=>{const[s,n,m,c]=l.split('|');const z=i+1;const synth=m.startsWith('[');const mass=parseFloat(m.replace(/[\[\]]/g,''));
+  const P=pos(z);const kind=z===85?'polokov':(c==='ml'?'polokov':(['nm','hl','ng'].includes(c)?'nekov':'kov'));
+  return{z,s,n,la:LAT[i],mass,synth,cat:c,kind,en:EN[i]||0,mp:MP[i]||0,bp:BP[i]||0,yr:YR[i],...P}});
+E.forEach(e=>{e.block=e.row>7?'f':(e.z===2||e.group<=2)?'s':e.group>=13?'p':'d';
+  e.val=e.group===1||e.group===2?e.group:(e.group>=13?(e.z===2?2:e.group-10):null)});
+const BYSYM=Object.fromEntries(E.map(e=>[e.s,e]));
+function stateAt(e,TK){if(!e.mp&&!e.bp)return'u';if(e.mp<0)return TK<e.bp?'l':'g';if(TK<e.mp)return's';if(!e.bp)return'u';if(e.mp===e.bp)return TK<e.mp?'s':'g';return TK<e.bp?'l':'g'}
+const room=e=>stateAt(e,298.15);
+const massNum=e=>Math.round(e.mass);
+
+const NOTES={
+H:{u:'Voda (H₂O) – každá jej molekula má dva atómy vodíka. Palivo vodíkových áut a rakiet.',f:'Najľahší a najrozšírenejší prvok vesmíru – Slnko je z neho asi z troch štvrtín.',clue:'tvorí spolu s kyslíkom vodu'},
+He:{u:'Balóny, vzducholode, chladenie magnetov v prístrojoch na magnetickú rezonanciu.',f:'Najprv ho objavili v svetle Slnka, až neskôr na Zemi. Pri bežnom tlaku nestuhne ani pri absolútnej nule.',clue:'plní balóny, ktoré lietajú'},
+Li:{u:'Batérie v mobile, notebooku aj elektromobile.',f:'Najľahší kov – pláva aj na oleji.',clue:'je v batérii tvojho mobilu'},
+Be:{u:'Ľahké a pevné súčiastky vesmírnych ďalekohľadov.',f:'Zrkadlá Vesmírneho ďalekohľadu Jamesa Webba sú z berýlia pokrytého zlatom.'},
+B:{u:'Varné sklo odolné voči teplu, čistiace prostriedky (borax).',f:'Rastliny ho potrebujú v malom množstve na rast.'},
+C:{u:'Tuha v ceruzke, diamant, uhlie, plasty, všetky živé organizmy, CO₂ vo vzduchu.',f:'Diamant aj tuha sú len uhlík – líšia sa iba usporiadaním atómov.',clue:'je v tuhe ceruzky aj v diamante',sk:'Hnedé uhlie sa ťažilo na hornej Nitre (Handlová, Nováky); ťažba sa skončila v roku 2023.'},
+N:{u:'Tvorí asi 78 % vzduchu. Hnojivá, bielkoviny v tele.',f:'Kvapalný dusík má −196 °C – zmrazený kvet sa rozbije ako sklo.',clue:'tvorí najväčšiu časť vzduchu'},
+O:{u:'Dýchame ho, tvorí 21 % vzduchu, je vo vode aj v horninách.',f:'Najrozšírenejší prvok zemskej kôry – takmer polovica jej hmotnosti.',clue:'dýchame ho a potrebuje ho oheň'},
+F:{u:'Zubné pasty (fluoridy), nepriľnavé panvice.',f:'Má najväčšiu elektronegativitu zo všetkých prvkov – je to najreaktívnejší nekov.',clue:'chráni zuby v zubnej paste'},
+Ne:{u:'Svietiace reklamné trubice – neón svieti červenooranžovo.',f:'Vzácny plyn – takmer s ničím nereaguje.',clue:'svieti v červených reklamných trubiciach'},
+Na:{u:'Kuchynská soľ NaCl, sóda bikarbóna, pouličné lampy so žltým svetlom.',f:'Čistý sodík je mäkký ako maslo a s vodou búrlivo reaguje.',clue:'spolu s chlórom tvorí kuchynskú soľ',sk:'Kamenná soľ sa ťažila v Solivare pri Prešove; ďalšie ložisko soli je pri Zbudzi na východe Slovenska.'},
+Mg:{u:'Ľahké zliatiny (bicykle, notebooky), biele svetlo ohňostrojov, chlorofyl v listoch.',f:'Atóm horčíka je v strede molekuly chlorofylu.',clue:'je v strede molekuly chlorofylu',sk:'Slovensko patrí k významným ťažiarom magnezitu (Jelšava, Lubeník, Hnúšťa).'},
+Al:{u:'Plechovky, alobal, rámy okien, lietadlá.',f:'Najrozšírenejší kov zemskej kôry. V 19. storočí bol drahší ako zlato.',clue:'vyrába sa z neho alobal a plechovky',sk:'Výroba hliníka má na Slovensku tradíciu v Žiari nad Hronom.'},
+Si:{u:'Piesok (SiO₂), sklo, čipy v počítačoch, solárne panely.',f:'Druhý najrozšírenejší prvok zemskej kôry po kyslíku.',clue:'je v piesku, skle aj počítačových čipoch',sk:'Opál z Dubníka v Slanských vrchoch je tvorený oxidom kremičitým a patrí k najslávnejším opálom Európy.'},
+P:{u:'Zápalky, hnojivá, kosti a zuby, DNA.',f:'Biely fosfor svieti v tme – jeho meno znamená „nositeľ svetla“.',clue:'je na škrtátku zápaliek'},
+S:{u:'Zápalky, kyselina sírová v autobatériách, vulkanizácia pneumatík.',f:'Zápach skazených vajec spôsobuje sulfán H₂S – zlúčenina síry.',clue:'je žltá a nachádza sa pri sopkách'},
+Cl:{u:'Kuchynská soľ, dezinfekcia vody v bazénoch, PVC.',f:'Ako plyn je žltozelený a jedovatý, v soli je však bezpečný.',clue:'dezinfikuje vodu v bazéne',sk:'Spolu so sodíkom tvorí kamennú soľ ťaženú v Solivare pri Prešove.'},
+Ar:{u:'Vypĺňa žiarovky a dvojsklá, ochranný plyn pri zváraní.',f:'Tvorí takmer 1 % vzduchu – oveľa viac ako oxid uhličitý.',clue:'je ho vo vzduchu takmer 1 %'},
+K:{u:'Hnojivá, banány, správna činnosť nervov a svalov.',f:'S vodou reaguje tak prudko, že vznikajúci vodík horí fialovým plameňom.',clue:'je ho veľa v banánoch'},
+Ca:{u:'Kosti a zuby, vápenec, mramor, krieda, sadra.',f:'Kvapľové jaskyne vznikajú rozpúšťaním a vyzrážaním uhličitanu vápenatého.',clue:'tvorí kosti a zuby',sk:'Jaskyne Slovenského krasu – Domica či Ochtinská aragonitová jaskyňa – vznikli vo vápenci a ich výzdoba je z uhličitanu vápenatého.'},
+Ti:{u:'Kĺbové náhrady, rámy okuliarov, biela farba (TiO₂) v zubných pastách a farbách.',f:'Je pevný ako oceľ, no takmer o polovicu ľahší.'},
+Cr:{u:'Lesklé pochrómované kovanie, nehrdzavejúca oceľ.',f:'Stopy chrómu dávajú farbu rubínu aj smaragdu.'},
+Mn:{u:'Oceľ, alkalické batérie.',f:'Je nevyhnutný pre fotosyntézu – pomáha štiepiť vodu.'},
+Fe:{u:'Oceľ, mosty, autá, hemoglobín v krvi.',f:'Zemské jadro je z veľkej časti zo železa a niklu.',clue:'je v hemoglobíne a vyrába sa z neho oceľ',sk:'Železná ruda sa ťažila na Spiši a Gemeri (Gelnica, Rudňany, Železník).'},
+Co:{u:'Kobaltová modrá v skle a keramike, batérie, magnety.',f:'Je súčasťou vitamínu B₁₂.'},
+Ni:{u:'Mince, nehrdzavejúca oceľ, batérie.',f:'Spolu so železom a kobaltom patrí k feromagnetickým kovom.'},
+Cu:{u:'Elektrické káble, mince, bronz (meď + cín) a mosadz (meď + zinok).',f:'Socha slobody je medená – zelenú farbu má od patiny.',clue:'vedie prúd v kábloch',sk:'Špania Dolina pri Banskej Bystrici patrila v 15. a 16. storočí k najväčším medeným baniam Európy.'},
+Zn:{u:'Pozinkovaný plech, batérie, mosadz.',f:'Zinok je dôležitý pre imunitu.'},
+Ga:{f:'Roztopí sa v dlani – topí sa pri 29,8 °C.',u:'Modré a biele LED diódy (nitrid gália).'},
+As:{u:'Kedysi jedy a farbivá, dnes polovodiče.',f:'V minulosti bol najznámejším jedom.'},
+Br:{u:'Spomaľovače horenia, kedysi fotografické materiály.',f:'Jediný nekov, ktorý je pri izbovej teplote kvapalný.',clue:'je ako jediný nekov kvapalný'},
+Kr:{u:'Výkonné výbojky a lasery.',f:'Jeho meno znamená po grécky „skrytý“.'},
+Sr:{u:'Červená farba ohňostrojov a signálnych svetlíc.',f:'Pomenovaný podľa škótskej dediny Strontian.'},
+Ag:{u:'Šperky, mince, zrkadlá, elektronika.',f:'Zo všetkých kovov najlepšie vedie elektrický prúd aj teplo.',clue:'sa v Banskej Štiavnici ťažilo v stredoveku',sk:'Banská Štiavnica bola centrom ťažby striebra; v roku 1762 tu vznikla banícka akadémia, kde sa vyučovala aj chémia.'},
+Sn:{u:'Spájkovanie v elektronike, pocínované konzervy, bronz.',f:'Pri silných mrazoch sa cín môže rozpadať na sivý prášok – „cínový mor“.'},
+Sb:{u:'Spomaľovače horenia, olovené akumulátory.',f:'Jeho zlúčeninou si už v starovekom Egypte líčili oči.',sk:'Ložiská antimónu pri Pezinku a v Dúbrave patrili k významným v Európe.'},
+I:{u:'Jódovaná soľ, jódová tinktúra na dezinfekciu rán.',f:'Bez jódu štítna žľaza nefunguje správne – preto sa pridáva do soli.',clue:'pridáva sa do soli kvôli štítnej žľaze'},
+Xe:{u:'Xenónové svetlomety, iónové motory vesmírnych sond.',f:'Hoci je vzácny plyn, s fluórom tvorí zlúčeniny.'},
+Cs:{u:'Atómové hodiny.',f:'Sekunda je definovaná pomocou kmitania atómu cézia.'},
+Ba:{u:'Zelená farba ohňostrojov, bárytová kaša pri röntgene žalúdka.',f:'Síran bárnatý je nerozpustný, preto je pri vyšetrení bezpečný.'},
+Nd:{u:'Najsilnejšie trvalé magnety – v slúchadlách, reproduktoroch, elektromotoroch.',f:'Malý neodýmový magnet unesie stonásobok svojej hmotnosti.'},
+Eu:{u:'Ochranné prvky eurobankoviek svietiace pod UV svetlom.',f:'Je pomenované podľa Európy.'},
+W:{u:'Vlákna klasických žiaroviek, vrtáky, rezné nástroje.',f:'Má najvyššiu teplotu topenia zo všetkých kovov – vyše 3 400 °C.'},
+Pt:{u:'Katalyzátory v autách, šperky, elektródy.',f:'Je vzácnejšia ako zlato.'},
+Au:{u:'Šperky, elektronika (kontakty), investičné tehličky.',f:'Nekoroduje – zlaté predmety z čias faraónov sa lesknú dodnes.',clue:'sa ťaží v okolí Kremnice, kde je aj mincovňa',sk:'Mincovňa v Kremnici, založená v roku 1328, patrí k najstarším nepretržite fungujúcim mincovniam sveta.'},
+Hg:{u:'Kedysi teplomery a tlakomery – pre jedovatosť sa nahrádza.',f:'Jediný kov, ktorý je pri izbovej teplote kvapalný.',clue:'je ako jediný kov kvapalný',sk:'Ortuť sa ťažila napríklad v Rudňanoch a v Malachove.'},
+Pb:{u:'Olovené akumulátory, ochrana pred röntgenovým žiarením.',f:'Je jedovaté – preto sa vyradilo z benzínu aj farieb.',clue:'chráni pred röntgenovým žiarením'},
+Bi:{u:'Lieky na žalúdok, bezolovnaté spájky.',f:'Jeho kryštály sa trblietajú farbami dúhy.'},
+Po:{u:'Zdroj žiarenia vo vedeckých prístrojoch.',f:'Marie Curie-Skłodowská ho pomenovala podľa svojej vlasti Poľska.'},
+Rn:{u:'Prirodzene vzniká v horninách a môže sa hromadiť v pivniciach.',f:'Je to rádioaktívny plyn – preto sa domy merajú a vetrajú.'},
+Ra:{u:'Kedysi svietiace ciferníky hodiniek.',f:'Objavili ho Marie a Pierre Curieovci v roku 1898.'},
+U:{u:'Palivo jadrových elektrární (Mochovce, Jaslovské Bohunice).',f:'1 kg uránu-235 uvoľní pri štiepení toľko energie ako spálenie niekoľkých tisíc ton uhlia.',clue:'je palivom jadrových elektrární',sk:'Pri Košiciach (Jahodná) je ložisko uránu; o jeho ťažbe sa vedú spory.'},
+Pu:{u:'Zdroj energie vesmírnych sond (Voyager, rover Curiosity).',f:'Pomenovaný podľa trpasličej planéty Pluto.'},
+Am:{u:'Detektory dymu v domácnostiach.',f:'Ide o umelo pripravený prvok, ktorý máš možno doma.'},
+Nh:{f:'Prvý prvok objavený v Ázii – v Japonsku (Nihon).'},
+Ts:{f:'Pomenovaný podľa štátu Tennessee v USA.'},
+Og:{f:'Najťažší známy prvok – vznikne len pár atómov na zlomok sekundy.'}
+};
+const GENERIC={am:'Mäkký, veľmi reaktívny kov – s vodou reaguje, preto sa v prírode vyskytuje len v zlúčeninách.',ae:'Reaktívny kov; jeho zlúčeniny sú súčasťou hornín a minerálov.',tm:'Prechodný kov – pevný, lesklý, vedie teplo a elektrický prúd; používa sa v zliatinách a katalyzátoroch.',pt:'Kov s nižšou teplotou topenia, často mäkší ako prechodné kovy.',ml:'Polokov – má vlastnosti kovov aj nekovov; mnohé polokovy sú polovodiče.',nm:'Nekov – zle vedie prúd aj teplo; je stavebným kameňom mnohých zlúčenín.',hl:'Halogén – veľmi reaktívny nekov; s kovmi tvorí soli.',ng:'Vzácny plyn – má zaplnenú valenčnú vrstvu, preto takmer nereaguje.',ln:'Lantanoid (prvok vzácnych zemín) – používa sa v magnetoch, displejoch a laseroch.',an:'Aktinoid – všetky jeho izotopy sú rádioaktívne.'};
+const SKSET=new Set(Object.entries(NOTES).filter(([k,v])=>v.sk).map(([k])=>BYSYM[k].z));
+const STABLE={1:[1,2],2:[3,4],3:[6,7],4:[9],5:[10,11],6:[12,13],7:[14,15],8:[16,17,18],9:[19],10:[20,21,22],11:[23],12:[24,25,26],13:[27],14:[28,29,30],15:[31],16:[32,33,34,36],17:[35,37],18:[36,38,40],19:[39,41],20:[40,42,43,44,46,48]};
+const MAINISO=[1,4,7,9,11,12,14,16,19,20,23,24,27,28,31,32,35,40,39,40];
+
+/* ================= state ================= */
+const S={view:'table',lvl:LS.get('lvl',2),lens:'cat',T:25,Y:1869,q:'',focus:null,hunt:null,fit:false,lat:false};
+
+/* ================= level & nav ================= */
+function setLvl(l){S.lvl=l;LS.set('lvl',l);$$('.seg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.lvl===l));renderMap();renderInfoDefault();}
+$$('.seg button').forEach(b=>b.onclick=()=>setLvl(+b.dataset.lvl));
+let labStop=null;
+function go(v){S.view=v;$$('.view[id^="v-"]').forEach(s=>s.hidden=s.id!=='v-'+v);$$('.tabs button').forEach(b=>b.toggleAttribute('aria-current',b.dataset.view===v)&&b.setAttribute('aria-current','page'));
+  if(v!=='lab'&&labStop){labStop();labStop=null;$('#labstage').hidden=true;$('#labhome').hidden=false}
+  if(v==='play'){$('#playhome').hidden=false;$('#quizbox').hidden=true;$('#cardbox').hidden=true;$('#printbox').hidden=true;renderBest()}
+  scrollTo({top:0});try{history.replaceState(null,'','#'+v)}catch(e){}}
+$$('.tabs button').forEach(b=>b.onclick=()=>go(b.dataset.view));
+
+/* ================= lenses ================= */
+const LENSES=[
+ {id:'cat',n:'Skupiny prvkov'},{id:'kind',n:'Kovy a nekovy'},{id:'state',n:'Skupenstvo a teplota'},
+ {id:'val',n:'Valenčné elektróny'},{id:'en',n:'Elektronegativita'},{id:'block',n:'Bloky s · p · d · f'},
+ {id:'year',n:'Kedy ho objavili'},{id:'sk',n:'Slovensko'}];
+const LENSHINT={cat:'Farba ukazuje rodinu prvkov s podobnými vlastnosťami.',kind:'Kovy vľavo, nekovy vpravo hore, medzi nimi schodík polokovov.',state:'Posuň teplotu a sleduj, ktoré prvky sa roztopia alebo vyparia.',val:'Číslo vpravo dole je počet valenčných elektrónov – prvky v stĺpci ich majú rovnako.',en:'Ako silno atóm priťahuje elektróny vo väzbe. Rastie doprava a nahor.',block:'Podľa toho, aký orbitál sa zapĺňa ako posledný.',year:'Posuň rok a sleduj, ako ľudia postupne objavovali prvky.',sk:'Prvky, ktoré sa na Slovensku ťažili alebo s ním súvisia.'};
+function eraC(y){return y===0?'#8A6A3B':y<1800?'#C0612A':y<1900?'#4F86C6':y<2000?'#3FAE6A':'#D265A6'}
+function enC(v){const t=clamp((v-.7)/3.3,0,1);return`hsl(${lerp(220,5,t)} 70% 50%)`}
+function lensOf(e){
+  switch(S.lens){
+   case'cat':return{c:CAT[e.cat].c};
+   case'kind':return{c:KIND[e.kind].c};
+   case'state':{const st=stateAt(e,S.T+273.15);return{c:STATEC[st].c,dim:st==='u'}}
+   case'val':return e.val?{c:VALC[e.group],x:e.val}:{c:'#9AA5AE',dim:true};
+   case'en':return e.en?{c:enC(e.en),x:e.en.toFixed(1)}:{c:'#9AA5AE',dim:true};
+   case'block':return{c:BLOCKC[e.block],x:e.block};
+   case'year':{const y=e.yr;return y<=S.Y?{c:eraC(y),x:y?String(y).slice(-4):'st.'}:{c:'#9AA5AE',dim:true}}
+   case'sk':return SKSET.has(e.z)?{c:'#C0612A',x:'SK'}:{c:'#9AA5AE',dim:true};
+  }
+}
+function legendHTML(){
+  const it=(c,n)=>`<span><i style="--c:${c}"></i>${n}</span>`;
+  switch(S.lens){
+   case'cat':return Object.values(CAT).map(v=>it(v.c,v.n)).join('');
+   case'kind':return Object.values(KIND).map(v=>it(v.c,v.n)).join('');
+   case'state':return['s','l','g','u'].map(k=>it(STATEC[k].c,STATEC[k].n)).join('');
+   case'val':return`<span>Hlavné skupiny (1, 2, 13–18). Prechodné prvky sú stlmené.</span>`;
+   case'en':return`<span>0,7</span><span class="grad"></span><span>4,0 (Pauling)</span>`;
+   case'block':return Object.entries(BLOCKC).map(([k,c])=>it(c,k+'-blok')).join('');
+   case'year':return[[0,'staroveké'],[1700,'do 1800'],[1850,'19. stor.'],[1950,'20. stor.'],[2001,'21. stor.']].map(([y,n])=>it(eraC(y),n)).join('');
+   case'sk':return it('#C0612A','súvisí so Slovenskom – ťukni na prvok');
+  }
+}
+function buildLensbar(){
+  $('#lensbar').innerHTML=LENSES.map(l=>`<button class="chip" data-lens="${l.id}" aria-pressed="${l.id===S.lens}">${l.n}</button>`).join('');
+  $$('#lensbar .chip').forEach(b=>b.onclick=()=>setLens(b.dataset.lens));
+}
+function setLens(id){S.lens=id;$$('#lensbar .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lens===id));
+  $('#ctl-state').hidden=id!=='state';$('#ctl-year').hidden=id!=='year';applyLens();renderInfoDefault()}
+
+/* ================= table ================= */
+function buildTable(){
+  const g=$('#ptable');let h='';
+  for(let gr=1;gr<=18;gr++)h+=`<div class="gh" style="grid-column:${gr+1};grid-row:1">${gr}</div>`;
+  for(let p=1;p<=7;p++)h+=`<div class="ph" style="grid-column:1;grid-row:${p+1}">${p}</div>`;
+  h+=`<div class="infobox" id="infobox"></div>`;
+  h+=`<div class="flab" style="grid-row:10">lantanoidy</div><div class="flab" style="grid-row:11">aktinoidy</div>`;
+  E.forEach((e,i)=>{h+=`<button class="cell" data-z="${e.z}" style="grid-column:${e.col+1};grid-row:${e.row+1};--i:${i}" aria-label="${e.z} ${e.s} ${e.n}, latinsky ${e.la}"><span class="cz">${e.z}</span><span class="cs">${e.s}</span><span class="cn"${S.lat?' style="font-style:italic"':''}>${S.lat?e.la:e.n}</span><span class="cx"></span></button>`});
+  g.innerHTML=h;
+  g.addEventListener('click',ev=>{const c=ev.target.closest('.cell');if(!c)return;const z=+c.dataset.z;if(S.hunt)huntTap(z,c);else openSheet(z)});
+  g.addEventListener('pointerover',ev=>{const c=ev.target.closest('.cell');if(c&&ev.pointerType==='mouse')renderInfo(E[c.dataset.z-1])});
+  g.addEventListener('pointerleave',()=>renderInfoDefault());
+}
+function matchQ(e){const q=S.q.trim().toLowerCase();if(!q)return true;return e.n.toLowerCase().startsWith(q)||e.la.toLowerCase().startsWith(q)||e.s.toLowerCase()===q||String(e.z)===q||e.n.toLowerCase().includes(q)&&q.length>2}
+function applyLens(){
+  $$('#ptable .cell').forEach(c=>{const e=E[c.dataset.z-1];const L=lensOf(e);c.style.setProperty('--c',L.c);
+    let dim=!!L.dim;if(S.focus&&!S.focus.els.has(e.z))dim=true;if(S.q&&!matchQ(e))dim=true;
+    c.dataset.dim=dim?1:0;$('.cx',c).textContent=L.x??''});
+  $('#legend').innerHTML=legendHTML();
+  if(S.lens==='year'){const n=E.filter(e=>e.yr<=S.Y).length;$('#ycount').textContent=`Do roku ${S.Y} ľudia poznali ${n} ${n===1?'prvok':n<5?'prvky':'prvkov'}.${S.Y>=1869&&S.Y<1875?' V roku 1869 zostavil Mendelejev periodickú tabuľku.':''}`}
+}
+function renderInfo(e){
+  const L=lensOf(e);const st=room(e);
+  $('#infobox').innerHTML=`<div class="ib-tile" style="--c:${L.c}"><span class="z mono">${e.z}</span><span class="s">${e.s}</span></div><div class="ib-txt"><b>${e.n} <i style="font-weight:500;color:var(--muted)">(${e.la})</i></b>${CAT[e.cat].n} · ${STATEC[st].n} pri 25 °C${S.lvl>=2&&e.group?` · ${e.group}. skupina, ${e.period}. perióda`:''}<p>${esc((NOTES[e.s]&&(NOTES[e.s].u||NOTES[e.s].f))||GENERIC[e.cat])}</p></div>`;
+}
+function renderInfoDefault(){
+  const ib=$('#infobox');if(!ib)return;
+  ib.innerHTML=`<div class="ib-txt"><b>${LENSES.find(l=>l.id===S.lens).n}</b><p style="-webkit-line-clamp:4">${LENSHINT[S.lens]} Ťukni na ľubovoľný prvok – otvorí sa jeho karta s modelom atómu.</p></div>`;
+}
+$('#q').addEventListener('input',e=>{S.q=e.target.value;applyLens()});
+$('#latbtn').onclick=()=>{S.lat=!S.lat;$('#latbtn').setAttribute('aria-pressed',S.lat);$('#latbtn').textContent=S.lat?'Slovenské názvy':'Latinské názvy';$$('#ptable .cell').forEach(c=>{const e=E[c.dataset.z-1];$('.cn',c).textContent=S.lat?e.la:e.n;$('.cn',c).style.fontStyle=S.lat?'italic':''})};
+$('#fitbtn').onclick=()=>{S.fit=!S.fit;$('#ptable').classList.toggle('fit',S.fit);$('#fitbtn').textContent=S.fit?'Väčšie políčka':'Celá tabuľka na šírku'};
+$('#trange').addEventListener('input',e=>{S.T=+e.target.value;$('#tval').textContent=`${fmt(S.T,0)} °C`;applyLens()});
+$$('#ctl-state [data-t]').forEach(b=>b.onclick=()=>{S.T=+b.dataset.t;$('#trange').value=S.T;$('#tval').textContent=`${fmt(S.T,0)} °C`;applyLens()});
+$('#yrange').addEventListener('input',e=>{S.Y=+e.target.value;$('#yval').textContent=S.Y;applyLens()});
+let yTimer=null;
+$('#yplay').onclick=()=>{if(yTimer){clearInterval(yTimer);yTimer=null;return}S.Y=1500;yTimer=setInterval(()=>{S.Y+=S.Y<1750?10:S.Y<1950?3:2;if(S.Y>=2026){S.Y=2026;clearInterval(yTimer);yTimer=null}$('#yrange').value=S.Y;$('#yval').textContent=S.Y;applyLens()},90)};
+$('#focusclear').onclick=()=>{S.focus=null;$('#focusbar').hidden=true;applyLens()};
+function focusTopic(t){go('table');if(t.lens)setLens(t.lens);
+  if(t.els&&t.els.length){S.focus={title:t.t,els:new Set(t.els)};$('#focustitle').textContent=t.t;$('#focusinfo').textContent=`Zvýraznené prvky: ${t.els.map(z=>E[z-1].s).join(', ')}`;$('#focusbar').hidden=false}
+  else{S.focus=null;$('#focusbar').hidden=true}applyLens()}
+
+/* ================= element sheet ================= */
+let sheetStop=null,sheetZ=0;
+function openSheet(z){
+  sheetZ=z;const e=E[z-1];const nt=NOTES[e.s]||{};const L=lensOf(e);const c=CAT[e.cat].c;const sh=shells(z);
+  const st=room(e);const A=massNum(e);
+  const facts=[];
+  facts.push(['Protónové číslo',e.z]);facts.push(['Latinský názov',`<i>${e.la}</i>`]);
+  facts.push(['Skupenstvo (25 °C)',STATEC[st].n]);
+  facts.push(['Typ',KIND[e.kind].n]);
+  if(S.lvl>=2){facts.push(['Protóny · elektróny',`${e.z} p⁺ · ${e.z} e⁻`]);facts.push(['Neutróny ≈',`${A-e.z} n⁰`]);
+    facts.push(['Skupina · perióda',e.group?`${e.group}. · ${e.period}.`:`f-blok · ${e.period}.`]);
+    facts.push(['Vrstvy elektrónov',sh.join(', ')]);if(e.val)facts.push(['Valenčné e⁻',e.val]);
+    facts.push(['Rel. atómová hmotnosť',e.synth?`[${e.mass}]`:fmt(e.mass,3)]);}
+  if(S.lvl>=3){facts.push(['Elektrónová konfigurácia',cfgStr(z)]);facts.push(['Elektronegativita',e.en?fmt(e.en,2):'—']);
+    facts.push(['Teplota topenia',e.mp>0?`${fmt(e.mp-273.15,0)} °C`:'—']);facts.push(['Teplota varu',e.bp?`${fmt(e.bp-273.15,0)} °C`:'—']);facts.push(['Blok',e.block]);}
+  facts.push(['Objavený',e.yr?(e.yr+(e.yr<1700?' (približne)':'')):'v staroveku']);
+  const use=nt.u||GENERIC[e.cat];
+  const labs=[];if(z<=20)labs.push(['atom','Postav ho v atómovej dielni']);if([3,11,19,20,38,56,29].includes(z))labs.push(['flame','Plameňová skúška']);if([11,17,1,8,29].includes(z))labs.push(['bonds','Väzby']);if([12,26,29,30,47,82].includes(z))labs.push(['galv','Galvanický článok']);
+  $('#sheet').innerHTML=`
+   <div class="sh-head">
+     <div class="bigtile" style="--c:${c}"><span class="z">${e.z}</span><span class="s">${e.s}</span><span class="m">${e.synth?'['+e.mass+']':fmt(e.mass,2)}</span></div>
+     <div><div class="kicker">${CAT[e.cat].n}</div><h2 id="shname">${e.n}</h2><div class="latname" style="font-style:italic;color:var(--muted);font-size:17px;margin:-2px 0 6px">lat. ${e.la}</div>
+       <div class="tagrow"><span class="tag c" style="--c:${STATEC[st].c}">${STATEC[st].n}</span><span class="tag c" style="--c:${KIND[e.kind].c}">${KIND[e.kind].n}</span>${SKSET.has(z)?'<span class="tag c" style="--c:#C0612A">Slovensko</span>':''}${z>=100?'<span class="tag">vlastnosti sú zatiaľ predpovedané</span>':''}</div></div>
+     <div class="row" style="flex-direction:column;gap:6px"><button class="iconbtn" id="shclose" aria-label="Zavrieť"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6 6 18"/></svg></button><button class="iconbtn" id="shspeak" aria-label="Prečítať nahlas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg></button></div>
+   </div>
+   <div class="sh-body">
+     <div>
+       <div class="facts">${facts.map(([k,v])=>`<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
+       <div class="note"><h3>Kde ho stretneš</h3><p>${esc(use)}</p></div>
+       ${ETYM[e.s]?`<div class="note"><h3>Prečo značka ${e.s}?</h3><p>${esc(ETYM[e.s])}</p></div>`:''}
+       ${nt.f?`<div class="note"><h3>Zaujímavosť</h3><p>${esc(nt.f)}</p></div>`:''}
+       ${nt.sk?`<div class="note sk"><h3>Na Slovensku</h3><p>${esc(nt.sk)}</p></div>`:''}
+     </div>
+     <div style="display:grid;gap:8px;align-content:start">
+       <canvas class="bohr" id="bohr" aria-label="Model atómu: elektróny vo vrstvách ${sh.join(', ')}"></canvas>
+       <div style="font-size:12px;color:var(--muted);text-align:center">Zjednodušený Bohrov model · vrstvy ${sh.join(' · ')}</div>
+       ${labs.map(([id,t])=>`<button class="btn sm" data-golab="${id}">${t}</button>`).join('')}
+     </div>
+   </div>
+   <div class="navrow"><button class="btn sm" id="shprev" ${z===1?'disabled':''}>← ${z>1?E[z-2].n:''}</button><button class="btn sm" id="shnext" ${z===118?'disabled':''}>${z<118?E[z].n:''} →</button></div>`;
+  $('#scrim').hidden=false;
+  $('#shclose').onclick=closeSheet;$('#shprev').onclick=()=>z>1&&openSheet(z-1);$('#shnext').onclick=()=>z<118&&openSheet(z+1);
+  $('#shspeak').onclick=()=>speak(`${e.n}. Značka ${e.s.split('').join(' ')}. Protónové číslo ${e.z}. ${use} ${nt.f||''}`);
+  $$('#sheet [data-golab]').forEach(b=>b.onclick=()=>{closeSheet();openLab(b.dataset.golab,{z})});
+  if(sheetStop)sheetStop();
+  const cv=$('#bohr');
+  sheetStop=loop((dt,t)=>{const{ctx,w,h}=fitCanvas(cv);drawBohr(ctx,w,h,e,sh,RM?0:t)});
+}
+function closeSheet(){$('#scrim').hidden=true;if(sheetStop){sheetStop();sheetStop=null}try{speechSynthesis.cancel()}catch(e){}}
+$('#scrim').addEventListener('click',e=>{if(e.target.id==='scrim')closeSheet()});
+addEventListener('keydown',e=>{if($('#scrim').hidden)return;if(e.key==='Escape')closeSheet();if(e.key==='ArrowRight'&&sheetZ<118)openSheet(sheetZ+1);if(e.key==='ArrowLeft'&&sheetZ>1)openSheet(sheetZ-1)});
+function drawBohr(ctx,w,h,e,sh,t){
+  const k=C();ctx.clearRect(0,0,w,h);const cx=w/2,cy=h/2;const n=sh.length;
+  const nucR=Math.min(w,h)*.08;const maxR=Math.min(w,h)/2-10;const gap=(maxR-nucR-6)/n;
+  for(let i=0;i<n;i++){const r=nucR+6+gap*(i+.6);circle(ctx,cx,cy,r,null,k.line,1.2);
+    const cnt=sh[i];const sp=(.6/(i+1))*(i%2?-1:1);const er=Math.max(1.6,Math.min(4,gap*.22));
+    for(let j=0;j<cnt;j++){const a=t*sp+j*2*Math.PI/cnt+i*.4;circle(ctx,cx+Math.cos(a)*r,cy+Math.sin(a)*r,er,k.electron)}}
+  const g=ctx.createRadialGradient(cx-nucR*.3,cy-nucR*.3,1,cx,cy,nucR);g.addColorStop(0,'#ffb49f');g.addColorStop(1,k.proton);
+  circle(ctx,cx,cy,nucR,g);ctx.fillStyle='#fff';ctx.font=`800 ${Math.round(nucR*.9)}px ${getComputedStyle(document.body).getPropertyValue('--f-display')||'sans-serif'}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e.s,cx,cy+1);
+}
+
+/* ================= curriculum map ================= */
+const TOPICS=[
+ {c:1,std:'Látky',t:'Voda mení skupenstvo',d:'Topenie, tuhnutie, vyparovanie a kondenzácia vody pri zmene teploty.',els:[1,8],lab:'particles',lens:'state'},
+ {c:1,std:'Látky',t:'Čo pláva a čo sa rozpúšťa',d:'Objem a hmotnosť, rozpúšťanie a filtrácia – soľ sa rozpustí, piesok nie.',els:[11,17,14,8]},
+ {c:1,std:'Interakcie',t:'Magnety a kovy',d:'Magnet priťahuje len niektoré kovy – železo, nikel a kobalt.',els:[26,27,28],lens:'kind'},
+ {c:1,std:'Zem',t:'Pôda, horniny a minerály',d:'Triedenie hornín podľa tvrdosti, farby a lesku; skúška s octom odhalí vápenec.',els:[8,14,13,26,20]},
+ {c:1,std:'Zem · Ekosystém',t:'Vzduch a voda pre život',d:'Vzduch je plyn, ktorý vypĺňa aj „prázdne“ priestory; rastliny produkujú kyslík.',els:[7,8,18,1,6]},
+ {c:2,std:'Látky',t:'Kolobeh vody',d:'Skupenské premeny vody v prírode, vznik dažďa a hmly.',els:[1,8],lab:'particles',lens:'state'},
+ {c:2,std:'Látky',t:'Rozpustnosť a odparovanie',d:'Koľko soli sa rozpustí vo vode a ako ju odparovaním získame späť.',els:[11,17]},
+ {c:2,std:'Zem',t:'Nerastné suroviny',d:'Soľ, štrk, piesok, železná ruda, ropa a zemný plyn – ťažba a využitie.',els:[11,17,14,26,6,1],lens:'sk'},
+ {c:2,std:'Zem',t:'Kryštalizácia soli',d:'Kryštáliky kuchynskej soli z roztoku; prečo majú tvar kocky.',els:[11,17],lab:'bonds'},
+ {c:2,std:'Zem',t:'Zloženie vzduchu',d:'Dusík, kyslík, argón, oxid uhličitý a vodná para.',els:[7,8,18,6,1]},
+ {c:2,std:'Interakcie',t:'Kompas a magnetizmus Zeme',d:'Magnetická strelka a magnetické pole Zeme.',els:[26,28,27]},
+ {c:2,std:'Organizmus',t:'Prvky v našom tele',d:'Živiny v potrave, kyslík v krvi, vápnik v kostiach, pitný režim.',els:[6,1,8,7,20,15,26,11,19]},
+ {c:3,std:'Látky · 1',t:'Vlastnosti látok a zmesi',d:'Skupenstvo, hustota, vodivosť, horľavosť; homogénne a heterogénne zmesi.',els:[29,13,80,35,16,6],lab:'particles',lens:'state'},
+ {c:3,std:'Látky · 3',t:'Časticová stavba látok',d:'Atómy, molekuly a ióny; pohyb častíc v pevnej, kvapalnej a plynnej látke.',lab:'particles'},
+ {c:3,std:'Látky · 5',t:'Stavba atómu',d:'Jadro a obal, protón, neutrón, elektrón; izotopy a ich využitie.',els:[1,6,8],lab:'atom'},
+ {c:3,std:'Látky · 6',t:'Periodická sústava prvkov',d:'Prvky usporiadané podľa protónového čísla; skupiny, periódy a valenčné elektróny.',lab:'hunt',lens:'val'},
+ {c:3,std:'Látky · 4',t:'Chemická väzba',d:'Iónová, kovalentná a kovová väzba a ich vzťah k vlastnostiam látok.',els:[11,17,8,1,29],lab:'bonds',lens:'en'},
+ {c:3,std:'Látky · 7',t:'Chemický dej a rovnica',d:'Reaktanty a produkty, zákon zachovania hmotnosti, chemická rovnica.',lab:'reactions'},
+ {c:3,std:'Látky · 8',t:'Kyseliny, zásady a pH',d:'Indikátory, neutralizácia a pH látok z domácnosti.',els:[1,17,11,8],lab:'ph'},
+ {c:3,std:'Látky · 8',t:'Redoxné deje a batérie',d:'Oxidácia a redukcia, galvanický článok, batérie a akumulátory.',els:[30,29,3,82],lab:'galv'},
+ {c:3,std:'Látky · 9',t:'Zlúčeniny uhlíka',d:'Uhľovodíky, plasty, horenie a ropa.',els:[6,1,8],lab:'reactions'},
+ {c:3,std:'Látky · 1 · Interakcie',t:'Plameň prezradí prvok',d:'Charakteristické sfarbenie plameňa a farby ohňostrojov.',els:[3,11,19,20,38,56,29],lab:'flame'},
+ {c:3,std:'Zem · 5',t:'Kyslé dažde, ozón, skleníkový efekt',d:'Plyny v atmosfére a vplyv človeka na klímu.',els:[16,7,8,6],lab:'ph'},
+ {c:3,std:'Zem · 2',t:'Minerály a suroviny Slovenska',d:'Ložiská, ťažba a jej vplyv na životné prostredie.',lens:'sk'},
+ {c:3,std:'Energia · 2',t:'Jadrová energia a rádioaktivita',d:'Jadrová elektráreň, rádionuklidy v medicíne, datovanie uhlíkom-14.',els:[92,94,88,84,86,6,95],lab:'atom'},
+ {c:3,std:'Organizmus · 3',t:'Biogénne prvky',d:'Cukry, tuky a bielkoviny – z akých prvkov je postavený živý organizmus.',els:[6,1,8,7,15,16,20,19,11,12,26,53]},
+ {c:4,std:'nadväzuje',t:'Elektrónová konfigurácia',d:'Orbitály s, p, d, f; prečo má tabuľka práve takýto tvar.',lens:'block'},
+ {c:4,std:'nadväzuje',t:'Periodicita vlastností',d:'Ako sa mení elektronegativita a reaktivita v skupine a perióde.',lens:'en'},
+ {c:4,std:'nadväzuje',t:'Polarita väzby a ΔEN',d:'Predpoveď typu väzby z rozdielu elektronegativít.',lab:'bonds',lens:'en'},
+ {c:4,std:'nadväzuje',t:'Neutralizačná krivka',d:'Titrácia silnej kyseliny silnou zásadou, bod ekvivalencie.',lab:'ph'},
+ {c:4,std:'nadväzuje',t:'Elektródový potenciál a rad napätí',d:'Výpočet napätia článku z E°, zapojenie článkov za sebou.',els:[12,30,26,82,29,47],lab:'galv'},
+ {c:4,std:'nadväzuje',t:'Atómové spektrá',d:'Prečo každý prvok vyžaruje svetlo iných farieb – čiarové spektrá.',lab:'flame'}];
+const LINES=[{c:1,n:'1. cyklus',s:'1.–3. ročník ZŠ',lc:'#E89B22'},{c:2,n:'2. cyklus',s:'4.–5. ročník ZŠ',lc:'#3FAE6A'},{c:3,n:'3. cyklus',s:'6.–9. ročník ZŠ · chémia, fyzika, biológia',lc:'#4F86C6'},{c:4,n:'Stredná škola',s:'na čo nadväzuje',lc:'#D265A6'}];
+function renderMap(){
+  const show=S.lvl===1?[1,2]:S.lvl===2?[1,2,3]:[1,2,3,4];
+  $('#mapgrid').innerHTML=LINES.filter(l=>show.includes(l.c)).map(l=>`<div class="line" style="--lc:${l.lc}"><h2>${l.n}</h2><div class="sub">${l.s}</div>
+   ${TOPICS.map((t,i)=>[t,i]).filter(([t])=>t.c===l.c).map(([t,i])=>`<div class="station"><div class="std">${t.std}</div><h3>${t.t}</h3><p>${t.d}</p>
+    ${t.els?`<div class="minis">${t.els.map(z=>`<button class="mini" style="--c:${CAT[E[z-1].cat].c}" data-el="${z}" aria-label="${E[z-1].n}">${E[z-1].s}</button>`).join('')}</div>`:''}
+    <div class="row">${t.els||t.lens?`<button class="btn sm" data-focus="${i}">Ukáž v tabuľke</button>`:''}${t.lab?`<button class="btn sm pri" data-golab="${t.lab}">${t.lab==='hunt'?'Hľadačka':'Laboratórium'}</button>`:''}</div></div>`).join('')}</div>`).join('');
+  $$('#mapgrid [data-el]').forEach(b=>b.onclick=()=>openSheet(+b.dataset.el));
+  $$('#mapgrid [data-focus]').forEach(b=>b.onclick=()=>focusTopic(TOPICS[+b.dataset.focus]));
+  $$('#mapgrid [data-golab]').forEach(b=>b.onclick=()=>b.dataset.golab==='hunt'?startHunt():openLab(b.dataset.golab));
+}
+
+/* ================= labs registry ================= */
+const ICONS={
+ galv:`<svg viewBox="0 0 120 120"><path d="M30 20v-8h60v8" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="12" r="9" fill="var(--surface,#fff)" stroke="currentColor" stroke-width="3"/><path d="M14 54v50h36V54M70 54v50h36V54" fill="none" stroke="currentColor" stroke-width="3" opacity=".6"/><rect x="16" y="66" width="32" height="36" fill="#BFD0DC" opacity=".5"/><rect x="72" y="66" width="32" height="36" fill="#2B6BE0" opacity=".55"/><rect x="26" y="20" width="10" height="72" fill="#9AA6AE"/><rect x="84" y="20" width="10" height="72" fill="#C46A3A"/><path d="M42 74V60h36v14" fill="none" stroke="#E3B23C" stroke-width="7" opacity=".8"/><circle class="bob" cx="46" cy="12" r="4.5" fill="#6E9DFF"/><circle class="bob" cx="74" cy="12" r="4.5" fill="#6E9DFF" style="animation-delay:.6s"/></svg>`,
+ atom:`<svg viewBox="0 0 120 120"><g class="spin"><ellipse cx="60" cy="60" rx="50" ry="18" fill="none" stroke="currentColor" stroke-width="3" opacity=".55"/><circle cx="110" cy="60" r="6" fill="#6E9DFF"/></g><g class="spin2" style="transform:rotate(60deg)"><ellipse cx="60" cy="60" rx="50" ry="18" fill="none" stroke="currentColor" stroke-width="3" opacity=".55" transform="rotate(60 60 60)"/><circle cx="35" cy="103" r="6" fill="#6E9DFF"/></g><circle cx="54" cy="58" r="9" fill="#F07A5E"/><circle cx="66" cy="58" r="9" fill="#A4B0BB"/><circle cx="60" cy="68" r="9" fill="#F07A5E"/></svg>`,
+ bonds:`<svg viewBox="0 0 120 120"><circle cx="38" cy="60" r="22" fill="#9D63E0" opacity=".9"/><circle cx="86" cy="60" r="28" fill="#3DBE5A" opacity=".9"/><text x="38" y="66" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">Na⁺</text><text x="86" y="66" text-anchor="middle" font-size="16" font-weight="800" fill="#fff">Cl⁻</text><circle class="bob" cx="62" cy="34" r="6" fill="#6E9DFF"/></svg>`,
+ particles:`<svg viewBox="0 0 120 120"><rect x="14" y="14" width="92" height="92" rx="10" fill="none" stroke="currentColor" stroke-width="3" opacity=".5"/>${[0,1,2,3].map(i=>[0,1,2].map(j=>`<circle cx="${34+i*17}" cy="${58+j*16}" r="6" fill="#F07A5E"/>`).join('')).join('')}<circle class="bob" cx="40" cy="30" r="6" fill="#7FA8FF"/><circle class="bob" cx="80" cy="34" r="6" fill="#7FA8FF" style="animation-delay:.5s"/></svg>`,
+ reactions:`<svg viewBox="0 0 120 120"><path d="M60 22v70M28 40h64" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M60 92l-14 12h28z" fill="currentColor"/><g class="bob"><path d="M28 40l-14 30h28z" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="28" cy="64" r="5" fill="#E04A3F"/></g><g class="bob" style="animation-delay:.8s"><path d="M92 40l-14 30h28z" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="92" cy="64" r="5" fill="#E04A3F"/></g></svg>`,
+ ph:`<svg viewBox="0 0 120 120"><path d="M36 20h48M42 20v32L22 96a6 6 0 0 0 5 8h66a6 6 0 0 0 5-8L78 52V20" fill="none" stroke="currentColor" stroke-width="4"/><path d="M30 80h60l8 16a6 6 0 0 1-5 8H27a6 6 0 0 1-5-8z" fill="#7B4FA8"><animate attributeName="fill" values="#D7263D;#7B4FA8;#2BA89A;#6CC24A;#7B4FA8;#D7263D" dur="5s" repeatCount="indefinite"/></path></svg>`,
+ flame:`<svg viewBox="0 0 120 120"><path class="bob" d="M60 12c14 22 30 34 30 58a30 30 0 0 1-60 0c0-14 8-22 14-32 2 10 8 14 12 14-6-16-2-28 4-40z" fill="#E8102B" opacity=".9"><animate attributeName="fill" values="#E8102B;#FFB000;#9BD13A;#1FC9A0;#B57EDC;#E8102B" dur="6s" repeatCount="indefinite"/></path><path d="M60 64c6 8 10 12 10 20a10 10 0 0 1-20 0c0-8 4-12 10-20z" fill="#7FA8FF"/></svg>`};
+const LABS=[
+ {id:'atom',t:'Atómová dielňa',d:'Skladaj atóm z protónov, neutrónov a elektrónov. Vytvor ión aj izotop.',std:'Látky 5 · Stavba atómu',intro:'Počet protónov rozhoduje, o ktorý prvok ide. Neutróny menia izotop, elektróny náboj.',mount:mountAtom},
+ {id:'bonds',t:'Ako sa atómy spájajú',d:'Iónová, kovalentná a kovová väzba v animácii plus predpovedač typu väzby.',std:'Látky 4 · Chemická väzba',intro:'Atómy sa spájajú, aby mali zaplnenú vonkajšiu vrstvu – elektróny odovzdajú, zdieľajú alebo ich majú spoločné.',mount:mountBonds},
+ {id:'particles',t:'Častice a skupenstvá',d:'Zohrievaj ľad až na paru a sleduj, čo robia molekuly a ako vzniká krivka ohrevu.',std:'Látky 3 · Energia 1',intro:'Teplota je pohyb častíc. Pri topení a vare sa energia míňa na rozbitie väzieb medzi molekulami.',mount:mountParticles},
+ {id:'reactions',t:'Vyrovnaj rovnicu',d:'Doplň koeficienty, kým váhy nebudú v rovnováhe – a sleduj, ako sa atómy preusporiadajú.',std:'Látky 7 · Zákon zachovania hmotnosti',intro:'Pri chemickej reakcii atómy nevznikajú ani nezanikajú. Iba si vymenia partnerov.',mount:mountReactions},
+ {id:'ph',t:'pH laboratórium',d:'Indikátor z červenej kapusty, látky z domácnosti a neutralizácia s krivkou pH.',std:'Látky 8 · Acidobázické reakcie',intro:'Indikátor zmení farbu podľa toho, či je roztok kyslý, neutrálny alebo zásaditý.',mount:mountPH},
+ {id:'galv',t:'Galvanický článok',d:'Spoj dva kovy, sleduj tok elektrónov a iónov a rozsvieť LED zapojením článkov za sebou.',std:'Látky 8 · Redoxné deje',intro:'Reaktívnejší kov sa rozpúšťa a púšťa elektróny do drôtu. Tie tečú k druhému kovu – vzniká elektrický prúd.',mount:mountGalv},
+ {id:'flame',t:'Plameňové skúšky',d:'Vlož vzorku soli do plameňa a podľa farby urči prvok. Pozri sa aj na jeho spektrum.',std:'Látky 1 · Optické javy',intro:'Elektróny prijmú energiu, preskočia vyššie a pri návrate vyžiaria svetlo typickej farby.',mount:mountFlame}];
+function renderLabCards(){$('#labcards').innerHTML=LABS.map(l=>`<button class="labcard" data-golab="${l.id}"><div class="art" style="color:var(--ink)">${ICONS[l.id]}</div><div class="tx"><span class="kicker">${l.std}</span><h3>${l.t}</h3><p>${l.d}</p></div></button>`).join('');
+  $$('#labcards [data-golab]').forEach(b=>b.onclick=()=>openLab(b.dataset.golab))}
+$('#labback').onclick=()=>{if(labStop){labStop();labStop=null}$('#labstage').hidden=true;$('#labhome').hidden=false};
+document.addEventListener('click',e=>{const b=e.target.closest('#playhome [data-golab]');if(b)openLab(b.dataset.golab)});
+let introTimer=null;
+function showIntro(lab,then){
+  const o=$('#intro');o.innerHTML=`<div><div class="ic" style="color:var(--bg)">${ICONS[lab.id]}</div><h2>${lab.t}</h2><p>${lab.intro}</p><div class="bar"><i></i></div><button class="btn" id="introgo">Začať</button></div>`;
+  o.hidden=false;const done=()=>{clearTimeout(introTimer);o.hidden=true;then()};$('#introgo').onclick=done;o.onclick=e=>{if(e.target===o)done()};introTimer=setTimeout(done,RM?600:3600);$('#introgo').focus({preventScroll:true});
+}
+function openLab(id,opt={}){
+  const lab=LABS.find(l=>l.id===id);if(!lab)return;go('lab');if(labStop){labStop();labStop=null}
+  $('#labhome').hidden=true;$('#labstage').hidden=false;$('#labtitle').textContent=lab.t;$('#labstd').textContent=lab.std;$('#labmount').innerHTML='';
+  showIntro(lab,()=>{labStop=lab.mount($('#labmount'),opt)||null});
+}
+
+/* ================= LAB: atom ================= */
+function mountAtom(root,opt){
+  const z0=opt.z&&opt.z<=20?opt.z:6;const st={p:z0,n:MAINISO[z0-1]-z0,e:z0,goal:null};
+  root.innerHTML=`<div class="stage"><canvas class="cv" id="acv" style="aspect-ratio:1;max-height:560px"></canvas>
+   <div class="panel">
+    <div class="card"><div class="row" style="justify-content:space-between"><div class="readout" id="anota"></div><div style="text-align:right"><div id="aname" style="font-family:var(--f-display);font-weight:800;font-size:20px"></div><div id="atype" style="font-size:13px;color:var(--muted)"></div></div></div><div class="row" id="apills" style="margin-top:8px"></div></div>
+    <div class="card">
+     ${[['p','Protóny','--proton','p⁺'],['n','Neutróny','--neutron','n⁰'],['e','Elektróny','--electron','e⁻']].map(([k,n,c,s])=>`<div class="ctlrow"><span class="lbl"><span class="dot" style="background:var(${c})"></span>${n} <span class="mono" style="color:var(--muted);font-weight:400">${s}</span></span><button class="stepbtn" data-k="${k}" data-d="-1" aria-label="Uber ${n}">−</button><span class="n" id="a-${k}"></span><button class="stepbtn" data-k="${k}" data-d="1" aria-label="Pridaj ${n}">+</button></div>`).join('')}
+     <p style="font-size:13px;color:var(--muted);margin:8px 0 0">Dielňa pracuje s prvkami 1–20 (vodík až vápnik).</p>
+    </div>
+    <div class="card"><h3>Úloha</h3><div id="agoal" class="caption"></div><div class="row"><button class="btn pri" id="acheck">Skontroluj</button><button class="btn" id="anew">Iná úloha</button></div><div class="fb" id="afb"></div></div>
+    <details class="why"><summary>Prečo má Na⁺ „rovnaké“ elektróny ako neón?</summary><p>Sodík stratí jediný valenčný elektrón. Zostane mu 10 elektrónov usporiadaných 2, 8 – rovnako ako má neón. Zaplnená vonkajšia vrstva je stabilná, preto sodík tvorí ión Na⁺ tak ochotne. Kľúčový rozdiel: v jadre Na⁺ je stále 11 protónov, takže je to sodík, nie neón.</p></details>
+   </div></div>`;
+  const lim={p:[0,20],n:[0,30],e:[0,24]};
+  $$('.stepbtn',root).forEach(b=>b.onclick=()=>{const k=b.dataset.k;st[k]=clamp(st[k]+ +b.dataset.d,...lim[k]);upd()});
+  function chargeStr(q){return q===0?'':(Math.abs(q)>1?Math.abs(q):'')+(q>0?'+':'-')}
+  function upd(){
+    ['p','n','e'].forEach(k=>$('#a-'+k).textContent=st[k]);
+    const{p,n,e}=st;const pills=[];
+    if(p===0){$('#anota').innerHTML='?';$('#aname').textContent='žiadny prvok';$('#atype').textContent='Bez protónu nevznikne atóm žiadneho prvku.';$('#apills').innerHTML='';return}
+    const el=E[p-1];const A=p+n;const q=p-e;
+    $('#anota').innerHTML=`<span class="nota"><span class="ss"><span>${A}</span><span>${p}</span></span>${el.s}<sup>${sup(chargeStr(q))}</sup></span>`;
+    $('#aname').textContent=el.n+(q?(q>0?' – katión':' – anión'):'');
+    $('#atype').textContent=`nukleónové číslo A = ${A} · náboj ${q>0?'+':''}${q}`;
+    const stab=STABLE[p]||[];
+    if(stab.includes(A))pills.push(['g',`stabilný izotop ${el.n}-${A}`]);
+    else if(n<Math.floor(p*.5)||n>p*1.7+2)pills.push(['b','takéto jadro by sa okamžite rozpadlo']);
+    else pills.push(['w',`rádioaktívny izotop ${el.n}-${A}`]);
+    if(q===0)pills.push(['','neutrálny atóm']);
+    else{pills.push(['',q>0?`stratil ${q} e⁻`:`prijal ${-q} e⁻`]);if(NG.includes(e)||e===0)pills.push(['g',e===0?'holé jadro':`elektrónový obal ako ${E[e-1].n}`])}
+    if(Math.abs(q)>3)pills.push(['b','taký veľký náboj je nereálny']);
+    $('#apills').innerHTML=pills.map(([c,t])=>`<span class="pill ${c}">${t}</span>`).join('');
+  }
+  const IONS=[[11,1],[19,1],[3,1],[12,2],[20,2],[13,3],[17,-1],[9,-1],[8,-2],[16,-2],[7,-3]];
+  const ISOS=[[1,2,'deutérium'],[1,3,'trícium'],[6,14,'uhlík-14 na datovanie'],[6,13,''],[8,18,''],[17,37,''],[3,6,''],[12,26,'']];
+  function newGoal(){
+    const t=pick(S.lvl===1?['atom','atom','ion']:['atom','ion','iso']);let g;
+    if(t==='atom'){const z=rnd(1,20);const A=MAINISO[z-1];g={p:z,n:A-z,e:z,txt:pick([`Postav neutrálny atóm prvku ${E[z-1].n} s nukleónovým číslom ${A}.`,`Zostav atóm ${sup(A)}${E[z-1].s}.`,`Postav najbežnejší atóm prvku so značkou ${E[z-1].s} (A = ${A}).`])}}
+    else if(t==='ion'){const[z,q]=pick(IONS);const A=MAINISO[z-1];const ch=(Math.abs(q)>1?Math.abs(q):'')+(q>0?'+':'-');g={p:z,n:A-z,e:z-q,txt:pick([`Vytvor ión ${E[z-1].s}${sup(ch)} (nukleónové číslo ${A}).`,`Postav ${q>0?'katión':'anión'} prvku ${E[z-1].n} s nábojom ${q>0?'+':'−'}${Math.abs(q)} (A = ${A}).`])}}
+    else{const[z,A,nm]=pick(ISOS);g={p:z,n:A-z,e:z,txt:`Postav neutrálny atóm izotopu ${E[z-1].n}-${A}${nm?` (${nm})`:''}.`}}
+    st.goal=g;$('#agoal').textContent=g.txt;$('#afb').textContent='';$('#afb').className='fb';
+  }
+  $('#anew',root).onclick=newGoal;
+  $('#acheck',root).onclick=()=>{const g=st.goal;const fb=$('#afb');
+    if(st.p===g.p&&st.n===g.n&&st.e===g.e){fb.textContent='Presne tak! Výborne.';fb.className='fb ok';setTimeout(newGoal,1600)}
+    else{const tips=[];if(st.p!==g.p)tips.push('počet protónov (urči ho podľa prvku)');else if(st.n!==g.n)tips.push('počet neutrónov (A − Z)');if(st.e!==g.e)tips.push('počet elektrónov (náboj = p − e)');fb.textContent='Ešte skontroluj '+tips.join(' a ')+'.';fb.className='fb no'}};
+  upd();newGoal();
+  const cv=$('#acv',root);const types=[];
+  return loop((dt,t)=>{const{ctx,w,h}=fitCanvas(cv);const k=C();ctx.clearRect(0,0,w,h);const cx=w/2,cy=h/2;const{p,n,e}=st;const N=p+n;
+    const r0=clamp(Math.min(w,h)/48,4,8);
+    types.length=0;for(let i=0;i<N;i++)types.push(Math.floor((i+1)*p/N)>Math.floor(i*p/N)?1:0);
+    for(let i=N-1;i>=0;i--){const rr=r0*1.05*Math.sqrt(i+.5);const a=i*2.39996;const jx=RM?0:Math.sin(t*3+i)*.6;circle(ctx,cx+Math.cos(a)*rr+jx,cy+Math.sin(a)*rr,r0,types[i]?k.proton:k.neutron,k.surface,1)}
+    const nucR=r0*1.05*Math.sqrt(N||1)+r0+8;const caps=[2,8,8,8];let rem=e;const sh=[];for(const c of caps){if(rem<=0)break;const v=Math.min(c,rem);sh.push(v);rem-=v}
+    const nShell=Math.max(sh.length,p?shells(Math.min(p,20)).length:0);const gap=clamp((Math.min(w,h)/2-nucR-16)/Math.max(nShell,1),18,46);
+    ctx.font=`600 11px ${'JetBrains Mono, monospace'}`;ctx.fillStyle=k.muted;ctx.textAlign='left';
+    for(let i=0;i<nShell;i++){const r=nucR+gap*(i+.5);ctx.setLineDash(sh[i]?[]:[4,5]);circle(ctx,cx,cy,r,null,k.line,1.4);ctx.setLineDash([]);ctx.fillText('KLMN'[i],cx+r*.71+4,cy-r*.71-4);
+      const cnt=sh[i]||0;for(let j=0;j<cnt;j++){const a=(RM?0:t*(.7/(i+1)))*(i%2?-1:1)+j*2*Math.PI/cnt;circle(ctx,cx+Math.cos(a)*r,cy+Math.sin(a)*r,5,k.electron,k.surface,1.5)}}
+  });
+}
+
+/* ================= LAB: bonds ================= */
+function mountBonds(root){
+  const st={mode:'ion',t:0,volt:false};
+  const opts=E.filter(e=>e.en&&e.cat!=='ng'&&e.z<=56).map(e=>`<option value="${e.z}">${e.s} – ${e.n}</option>`).join('');
+  root.innerHTML=`<div class="subtabs" style="margin-bottom:12px"><button class="chip" data-m="ion" aria-pressed="true">Iónová · NaCl</button><button class="chip" data-m="cov">Kovalentná · H₂O</button><button class="chip" data-m="met">Kovová · meď</button></div>
+   <div class="stage"><div style="display:grid;gap:8px"><canvas class="cv" id="bcv" style="aspect-ratio:4/3"></canvas><div class="row"><button class="btn sm" id="breplay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg>Prehrať znova</button><button class="btn sm" id="bvolt" hidden>Pripoj napätie</button></div></div>
+   <div class="panel"><div class="card"><h3 id="bhead"></h3><div class="caption" id="bcap"></div></div>
+    <div class="card"><h3>Predpovedač väzby</h3><p style="margin:0 0 8px;font-size:14px;color:var(--muted)">Vyber dva prvky. Typ väzby odhadneme z rozdielu elektronegativít (ΔEN).</p>
+     <div class="row"><select id="b1" aria-label="Prvý prvok">${opts}</select><span>+</span><select id="b2" aria-label="Druhý prvok">${opts}</select></div>
+     <div style="margin-top:12px"><div class="enbar"><span class="mk" id="benmk"></span></div><div class="enlab"><span>nepolárna</span><span>polárna kovalentná</span><span>iónová</span></div></div>
+     <div id="bverd" style="margin-top:10px"></div></div>
+    <details class="why"><summary>Je hranica 1,7 presná?</summary><p>Nie. Je to užitočné pravidlo, nie zákon. Väzba medzi rozdielnymi atómami je vždy trochu iónová aj trochu kovalentná. Napríklad HF má ΔEN 1,78, a predsa je to molekula s kovalentnou väzbou. Preto hovoríme o prevažnom charaktere väzby.</p></details>
+   </div></div>`;
+  $('#b1').value=11;$('#b2').value=17;
+  function verdict(){const a=E[$('#b1').value-1],b=E[$('#b2').value-1];const d=Math.abs(a.en-b.en);$('#benmk').style.left=`calc(${clamp(d/3.3,0,1)*100}% - 2px)`;
+    let t,ex;if(a.kind==='kov'&&b.kind==='kov'){t='kovová väzba (zliatina)';ex='Oba prvky sú kovy – ich valenčné elektróny vytvoria spoločný „elektrónový plyn“.'}
+    else if(d<.4){t='nepolárna kovalentná';ex='Atómy priťahujú elektróny takmer rovnako – spoločný elektrónový pár je uprostred.'}
+    else if(d<1.7){t='polárna kovalentná';ex=`Spoločný pár je posunutý k atómu ${a.en>b.en?a.n:b.n} – ten nesie čiastočný záporný náboj δ⁻.`}
+    else{t='iónová';ex=`${a.en<b.en?a.n:b.n} odovzdá elektrón(y) prvku ${a.en<b.en?b.n:a.n}; vzniknú katión a anión.`}
+    if(a.z===b.z&&a.kind!=='kov'){t='nepolárna kovalentná';ex=`Dva rovnaké atómy – napríklad molekula ${a.s}${a.z===1||[7,8,9,17,35,53].includes(a.z)?'₂':''}.`}
+    $('#bverd').innerHTML=`<div class="mono">ΔEN = |${fmt(a.en,2)} − ${fmt(b.en,2)}| = ${fmt(d,2)}</div><div style="font-family:var(--f-display);font-weight:800;font-size:20px;margin:4px 0">${t}</div><div style="font-size:14px;color:var(--muted)">${ex}</div>`}
+  $('#b1').onchange=verdict;$('#b2').onchange=verdict;verdict();
+  const HEAD={ion:'Iónová väzba – chlorid sodný',cov:'Kovalentná väzba – molekula vody',met:'Kovová väzba – meď'};
+  function setMode(m){st.mode=m;st.t=0;$$('.subtabs .chip',root).forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));$('#bhead').textContent=HEAD[m];$('#bvolt').hidden=m!=='met';st.volt=false;$('#bvolt').textContent='Pripoj napätie'}
+  $$('.subtabs .chip',root).forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+  $('#breplay').onclick=()=>{st.t=0};$('#bvolt').onclick=()=>{st.volt=!st.volt;$('#bvolt').textContent=st.volt?'Odpoj napätie':'Pripoj napätie'};
+  setMode('ion');
+  const elec=[];for(let i=0;i<34;i++)elec.push({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3});
+  let lastCap='';function cap(s){if(s!==lastCap){lastCap=s;$('#bcap').textContent=s}}
+  function ring(ctx,x,y,r,col,a=1){ctx.globalAlpha=a;circle(ctx,x,y,r,null,col,1.5);ctx.globalAlpha=1}
+  function nuc(ctx,x,y,r,col,txt){circle(ctx,x,y,r,col);ctx.fillStyle='#fff';ctx.font=`800 ${Math.round(r*.85)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,x,y+1)}
+  function els(ctx,x,y,r,n,col,off=0,skip=-1,slots=n){for(let j=0;j<slots;j++){if(j===skip||j>=n+(skip>=0&&j>skip?1:0)&&false)continue;}
+    let c=0;for(let j=0;j<slots&&c<n;j++){if(j===skip)continue;const a=off+j*2*Math.PI/slots;circle(ctx,x+Math.cos(a)*r,y+Math.sin(a)*r,4,col);c++}}
+  return loop((dt)=>{st.t+=RM?dt*3:dt;const cv=$('#bcv',root);const{ctx,w,h}=fitCanvas(cv);const k=C();ctx.clearRect(0,0,w,h);const s=Math.min(w/320,h/240);const t=st.t;
+   ctx.textAlign='center';ctx.textBaseline='middle';
+   if(st.mode==='ion'){
+     const T=t%11;const y=h*.46;const appr=ease(clamp((T-4.6)/1.4,0,1));const lat=clamp((T-6.6)/1,0,1);
+     const nx=lerp(w*.27,w*.38,appr),cx2=lerp(w*.73,w*.64,appr);const R=[14*s,27*s,40*s];
+     ctx.globalAlpha=1-lat;
+     nuc(ctx,nx,y,10*s,'#9D63E0','Na');nuc(ctx,cx2,y,10*s,'#3DBE5A','Cl');
+     ring(ctx,nx,y,R[0],k.line);ring(ctx,nx,y,R[1],k.line);ring(ctx,nx,y,R[2],k.line,1-clamp((T-3.6)/.8,0,1));
+     ring(ctx,cx2,y,R[0],k.line);ring(ctx,cx2,y,R[1],k.line);ring(ctx,cx2,y,R[2],k.line);
+     els(ctx,nx,y,R[0],2,k.electron);els(ctx,nx,y,R[1],8,k.electron,.2);els(ctx,cx2,y,R[0],2,k.electron);els(ctx,cx2,y,R[1],8,k.electron,.2);
+     els(ctx,cx2,y,R[2],7,k.electron,0,4,8);
+     const mv=ease(clamp((T-1.6)/2,0,1));const sx=nx+R[2],sy=y,ex=cx2-R[2],ey=y;const px=lerp(sx,ex,mv),py=lerp(sy,ey,mv)-Math.sin(mv*Math.PI)*50*s;
+     circle(ctx,px,py,5,k.warm);if(mv>0&&mv<1){circle(ctx,px,py,10,null,k.warm,1.5)}
+     const ch=clamp((T-3.8)/.6,0,1);if(ch>0){ctx.globalAlpha=ch*(1-lat);ctx.font=`800 ${18*s}px sans-serif`;ctx.fillStyle=k.ink;ctx.fillText('+',nx+R[1]+4,y-R[1]);ctx.fillText('−',cx2+R[2]+4,y-R[2])}
+     if(appr>0&&lat===0){ctx.globalAlpha=appr;ctx.strokeStyle=k.warm;ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(nx+R[1]+6,y+R[2]+10);ctx.lineTo(cx2-R[2]-6,y+R[2]+10);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=k.muted;ctx.font=`600 ${11*s+2}px sans-serif`;ctx.fillText('elektrostatická príťažlivosť',w/2,y+R[2]+24)}
+     ctx.globalAlpha=lat;if(lat>0){const cols=7,rows=5,sp=Math.min(w/(cols+1),h/(rows+1));const ox=(w-sp*(cols-1))/2,oy=(h-sp*(rows-1))/2;
+       for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const na=(i+j)%2===0;const x=ox+i*sp,yy=oy+j*sp;circle(ctx,x,yy,na?sp*.24:sp*.38,na?'#9D63E0':'#3DBE5A');ctx.fillStyle='#fff';ctx.font=`800 ${sp*.22}px sans-serif`;ctx.fillText(na?'+':'−',x,yy+1)}}
+     ctx.globalAlpha=1;
+     cap(T<1.6?'Sodík má na vonkajšej vrstve 1 elektrón, chlór 7. Obom by sa „hodila“ zaplnená vrstva.':T<3.8?'Sodík odovzdá svoj valenčný elektrón chlóru.':T<4.6?'Vznikli ióny: Na⁺ (obal ako neón) a Cl⁻ (obal ako argón).':T<6.6?'Opačné náboje sa priťahujú – to je iónová väzba.':'V kryštáli soli sa ióny Na⁺ a Cl⁻ pravidelne striedajú. Preto má soľ kryštáliky tvaru kocky.');
+   }else if(st.mode==='cov'){
+     const T=t%11;const ox=w/2,oy=h*.38;const Ro=[13*s,30*s],Rh=14*s;const appr=ease(clamp((T-1.5)/2,0,1));const D=lerp(110*s,Ro[1]+Rh*.45,appr);
+     const ang=[Math.PI/2+0.912,Math.PI/2-0.912];const H=ang.map(a=>[ox+Math.cos(a)*D,oy+Math.sin(a)*D]);
+     const share=ease(clamp((T-3.5)/1.2,0,1));const pol=clamp((T-5.4)/.8,0,1);
+     nuc(ctx,ox,oy,11*s,'#E04A3F','O');ring(ctx,ox,oy,Ro[0],k.line);ring(ctx,ox,oy,Ro[1],k.line);els(ctx,ox,oy,Ro[0],2,k.electron);
+     [-1.3,-1.84].forEach(base=>{[-.2,.2].forEach(dd=>{const a=base+dd;circle(ctx,ox+Math.cos(a)*Ro[1],oy+Math.sin(a)*Ro[1],4,k.electron)})});
+     H.forEach(([hx,hy],i)=>{nuc(ctx,hx,hy,7*s,'#8C99A5','H');ring(ctx,hx,hy,Rh,k.line);
+       const a=ang[i];const oE=[ox+Math.cos(a)*Ro[1],oy+Math.sin(a)*Ro[1]];const back=Math.atan2(oy-hy,ox-hx);const hE=[hx+Math.cos(back)*Rh,hy+Math.sin(back)*Rh];
+       const mx=(ox+Math.cos(a)*(Ro[1]-2)+hx+Math.cos(back)*(Rh-2))/2,my=(oy+Math.sin(a)*(Ro[1]-2)+hy+Math.sin(back)*(Rh-2))/2;const perp=a+Math.PI/2;
+       const t1=[mx+Math.cos(perp)*5,my+Math.sin(perp)*5],t2=[mx-Math.cos(perp)*5,my-Math.sin(perp)*5];
+       if(share>0){ctx.globalAlpha=share*.35;ctx.fillStyle=k.warm;ctx.beginPath();ctx.ellipse(mx,my,13,8,a,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}
+       circle(ctx,lerp(oE[0],t1[0],share),lerp(oE[1],t1[1],share),4,k.electron);circle(ctx,lerp(hE[0],t2[0],share),lerp(hE[1],t2[1],share),4,k.warm)});
+     if(pol>0){ctx.globalAlpha=pol;ctx.fillStyle=k.ink;ctx.font=`700 ${15*s+2}px sans-serif`;ctx.fillText('δ⁻',ox,oy-Ro[1]-14);H.forEach(([hx,hy])=>ctx.fillText('δ⁺',hx+(hx<ox?-1:1)*(Rh+10),hy+6));
+       ctx.font=`700 ${18*s+4}px sans-serif`;ctx.fillText('H – O – H',w/2,h*.88);ctx.font=`500 ${11*s+2}px sans-serif`;ctx.fillStyle=k.muted;ctx.fillText('uhol väzieb ≈ 104,5°',w/2,h*.88+20*s);ctx.globalAlpha=1}
+     cap(T<1.5?'Kyslík má 6 valenčných elektrónov a chýbajú mu 2. Vodíku chýba 1.':T<3.5?'Atómy sa priblížia, až sa ich elektrónové obaly prekryjú.':T<5.4?'Každý vodík s kyslíkom zdieľa jeden spoločný elektrónový pár – kovalentná väzba.':'Kyslík priťahuje spoločné páry silnejšie (EN 3,44 vs. 2,20). Väzby sú polárne a molekula vody je zalomená.');
+   }else{
+     const cols=8,rows=5,sp=Math.min(w/(cols+.5),h/(rows+.5));const ox=(w-sp*(cols-1))/2,oy=(h-sp*(rows-1))/2;
+     for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const x=ox+i*sp,y=oy+j*sp;const jit=RM?0:Math.sin(t*6+i*3+j)*1.2;circle(ctx,x+jit,y,sp*.3,'#D9822B');ctx.fillStyle='#fff';ctx.font=`800 ${sp*.26}px sans-serif`;ctx.fillText('+',x+jit,y+1)}
+     elec.forEach(p=>{p.vx+=(Math.random()-.5)*.6*dt;p.vy+=(Math.random()-.5)*.6*dt;const sp2=Math.hypot(p.vx,p.vy);if(sp2>.35){p.vx*=.35/sp2;p.vy*=.35/sp2}
+       p.x+=(p.vx+(st.volt?.18:0))*dt;p.y+=p.vy*dt;if(p.x>1)p.x-=1;if(p.x<0)p.x+=1;if(p.y>1||p.y<0){p.vy*=-1;p.y=clamp(p.y,0,1)}circle(ctx,p.x*w,p.y*h,3.6,k.electron)});
+     if(st.volt){ctx.fillStyle=k.ink;ctx.font='700 14px sans-serif';ctx.fillText('−  smer pohybu elektrónov  →  +',w/2,14)}
+     cap(st.volt?'Pripojené napätie: voľné elektróny sa začnú pohybovať jedným smerom – kovom tečie elektrický prúd.':'Atómy kovu „uvoľnia“ valenčné elektróny. Katióny sú v mriežke a elektróny sa voľne pohybujú medzi nimi ako spoločný elektrónový oblak. Preto kovy vedú prúd a teplo.');
+   }
+  });
+}
+
+/* ================= LAB: particles ================= */
+function mountParticles(root){
+  const H0=63,H1=397,H2=817,H3=3077,H4=3177;
+  const st={H:20,dir:0,speed:1,time:0,pts:[]};const N=48;const perm=shuffle([...Array(N).keys()]);const rank=[];perm.forEach((v,i)=>rank[v]=i);
+  const P=[...Array(N)].map((_,i)=>({x:0,y:0,vx:0,vy:0,a:Math.random()*6.28,init:false}));
+  root.innerHTML=`<div class="stage"><div style="display:grid;gap:10px"><canvas class="cv" id="pcv" style="aspect-ratio:4/3"></canvas><canvas class="cv" id="pgr" style="aspect-ratio:16/7"></canvas></div>
+   <div class="panel"><div class="card"><div class="row" style="justify-content:space-between"><div class="readout mono" id="ptemp"></div><span class="pill" id="pphase"></span></div><div class="caption" id="pcap" style="margin-top:8px"></div></div>
+    <div class="card"><div class="row"><button class="btn pri" id="pheat">Zohrievaj</button><button class="btn" id="pcool">Ochladzuj</button><button class="btn" id="pstop">Stop</button><button class="btn" id="preset">Od začiatku</button></div>
+     <div class="row" style="margin-top:10px;font-size:14px">Rýchlosť: <div class="seg"><button data-sp="1" aria-pressed="true">×1</button><button data-sp="3">×3</button></div></div>
+     <p style="font-size:13px;color:var(--muted);margin:8px 0 0">1 gram vody, ohrev stálym výkonom. Graf sa kreslí, kým zohrievaš alebo ochladzuješ.</p></div>
+    <details class="why"><summary>Prečo sa teplota počas varu nemení, hoci stále zohrievame?</summary><p>Dodávaná energia sa míňa na rozrušenie príťažlivých síl medzi molekulami – molekuly sa od seba vzďaľujú, ale nepohybujú sa rýchlejšie. Teplota je mierou rýchlosti ich pohybu, preto stojí. Všimni si aj, že var trvá oveľa dlhšie ako topenie: na vyparenie treba asi 7-krát viac energie.</p></details>
+    <details class="why"><summary>Navrhni pokus</summary><p>Ako by si overil(a), že teplota varu vody závisí od tlaku vzduchu? Čo budeš merať, čo necháš rovnaké a čo zmeníš? (Tip: na vrchole Lomnického štítu voda vrie pri nižšej teplote ako v Bratislave.)</p></details>
+   </div></div>`;
+  const temp=H=>H<H0?-30+H/2.1:H<H1?0:H<H2?(H-H1)/4.2:H<H3?100:100+(H-H3)/2;
+  const fm=H=>H<H0?0:H<H1?(H-H0)/334:1, fb=H=>H<H2?0:H<H3?(H-H2)/2260:1;
+  const setDir=d=>{st.dir=d;$('#pheat').classList.toggle('pri',d===1);$('#pcool').classList.toggle('pri',d===-1)};
+  $('#pheat').onclick=()=>setDir(1);$('#pcool').onclick=()=>setDir(-1);$('#pstop').onclick=()=>setDir(0);
+  $('#preset').onclick=()=>{st.H=20;st.time=0;st.pts=[];setDir(0)};
+  $$('.seg [data-sp]',root).forEach(b=>b.onclick=()=>{st.speed=+b.dataset.sp;$$('.seg [data-sp]',root).forEach(x=>x.setAttribute('aria-pressed',x===b))});
+  setDir(0);let lastCap='';
+  return loop((dt,t)=>{
+    if(st.dir){st.H=clamp(st.H+st.dir*115*dt*st.speed,0,H4);st.time+=dt*st.speed;st.pts.push([st.time,temp(st.H)]);if(st.pts.length>4000)st.pts.shift();if((st.dir>0&&st.H>=H4)||(st.dir<0&&st.H<=0))setDir(0)}
+    const T=temp(st.H),m=fm(st.H),b=fb(st.H);
+    $('#ptemp').textContent=`${fmt(T,1)} °C`;
+    const ph=st.H<H0?'ľad':st.H<H1?'topenie':st.H<H2?'voda':st.H<H3?'var':'vodná para';$('#pphase').textContent=ph;
+    const capt={ľad:'Molekuly sú v pevnej mriežke. Iba kmitajú okolo svojich miest – čím vyššia teplota, tým silnejšie.',topenie:'Topenie pri 0 °C: energia rozbíja pravidelnú mriežku, molekuly sa začínajú posúvať. Teplota stojí.',voda:'Kvapalina: molekuly sú blízko seba, ale voľne sa presúvajú a prekĺzajú okolo seba.',var:'Var pri 100 °C: molekuly sa odtrhávajú z kvapaliny a odlietajú. Teplota stojí, kým sa všetka voda nevyparí.','vodná para':'Plyn: molekuly lietajú veľkou rýchlosťou a zaberajú celý priestor nádoby.'}[ph];
+    if(capt!==lastCap){lastCap=capt;$('#pcap').textContent=capt}
+    const cv=$('#pcv',root);const{ctx,w,h}=fitCanvas(cv);const k=C();ctx.clearRect(0,0,w,h);
+    const pad=14,bx=pad,by=pad,bw=w-2*pad,bh=h-2*pad;ctx.strokeStyle=k.line;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+    const cols=8,rows=6,sp=Math.min(bw/(cols+2),bh/(rows+3),34);const gx=bx+(bw-sp*(cols-1))/2,gy=by+bh-sp*.8-sp*(rows-1);
+    const nLiq=Math.round(N*m)-Math.round(N*b);const liqH=Math.max(sp*1.4,Math.ceil(Math.max(nLiq,1)/cols)*sp*1.05);
+    const vib=1+(T+30)/30*1.4;const R=sp*.3;
+    P.forEach((p,i)=>{const hx=gx+(i%cols)*sp,hy=gy+Math.floor(i/cols)*sp;if(!p.init){p.x=hx;p.y=hy;p.init=true}
+      const r=rank[i];const gas=r<Math.round(N*b);const liq=!gas&&r<Math.round(N*m);
+      if(!gas&&!liq){p.x=lerp(p.x,hx,.12)+(RM?0:(Math.random()-.5)*vib);p.y=lerp(p.y,hy,.12)+(RM?0:(Math.random()-.5)*vib);p.vx=p.vy=0}
+      else{const target=gas?(170+Math.max(0,T-100)*3):(35+T*.7);const v=Math.hypot(p.vx,p.vy)||1;if(v<1){const a=Math.random()*6.28;p.vx=Math.cos(a)*target;p.vy=Math.sin(a)*target}else{p.vx*=lerp(1,target/v,.08);p.vy*=lerp(1,target/v,.08)}
+        if(!gas){p.vx+=(Math.random()-.5)*80*dt*10;p.vy+=(Math.random()-.5)*80*dt*10+30*dt}
+        p.x+=p.vx*dt*(RM?.2:1);p.y+=p.vy*dt*(RM?.2:1);const top=gas?by+R:by+bh-liqH;
+        if(p.x<bx+R){p.x=bx+R;p.vx=Math.abs(p.vx)}if(p.x>bx+bw-R){p.x=bx+bw-R;p.vx=-Math.abs(p.vx)}if(p.y>by+bh-R){p.y=by+bh-R;p.vy=-Math.abs(p.vy)}if(p.y<top){p.y=gas?top:lerp(p.y,top,.3);p.vy=Math.abs(p.vy)*(gas?1:.5)}}
+      p.a+=(gas?3:liq?1.2:.2)*dt*(RM?0:1);
+      const ca=Math.cos(p.a),sa=Math.sin(p.a);
+      [[.75,.55],[-.75,.55]].forEach(([dx,dy])=>circle(ctx,p.x+(dx*ca-dy*sa)*R,p.y+(dx*sa+dy*ca)*R,R*.5,'#EDEFF2',k.muted,1));
+      circle(ctx,p.x,p.y,R*.8,'#E04A3F')});
+    if(nLiq>0){ctx.fillStyle=k.electron;ctx.globalAlpha=.08;ctx.fillRect(bx+1,by+bh-liqH,bw-2,liqH-1);ctx.globalAlpha=1}
+    // graph
+    const g=$('#pgr',root);const G=fitCanvas(g);const c2=G.ctx;c2.clearRect(0,0,G.w,G.h);const L=36,Rr=10,Tp=10,Bm=22;const gw=G.w-L-Rr,gh=G.h-Tp-Bm;
+    const tMax=Math.max(30,st.time);const yT=v=>Tp+gh*(1-(v+30)/180);
+    c2.font='10px JetBrains Mono, monospace';c2.fillStyle=k.muted;c2.textAlign='right';c2.textBaseline='middle';
+    [-30,0,50,100,150].forEach(v=>{const y=yT(v);c2.strokeStyle=k.line;c2.lineWidth=v===0||v===100?1.2:.6;c2.setLineDash(v===0||v===100?[4,4]:[]);c2.beginPath();c2.moveTo(L,y);c2.lineTo(L+gw,y);c2.stroke();c2.setLineDash([]);c2.fillText(v+' °C',L-4,y)});
+    c2.textAlign='left';c2.fillText('čas →',L+4,G.h-8);
+    if(st.pts.length>1){c2.strokeStyle=k.warm;c2.lineWidth=2.5;c2.beginPath();st.pts.forEach(([tt,v],i)=>{const x=L+gw*tt/tMax,y=yT(v);i?c2.lineTo(x,y):c2.moveTo(x,y)});c2.stroke();const[lt,lv]=st.pts[st.pts.length-1];circle(c2,L+gw*lt/tMax,yT(lv),4,k.warm)}
+  });
+}
+
+/* ================= LAB: reactions ================= */
+const RX=[
+ {n:'Horenie vodíka',r:[['H2',{H:2}],['O2',{O:2}]],p:[['H2O',{H:2,O:1}]],l:2},
+ {n:'Vznik kuchynskej soli',r:[['Na',{Na:1}],['Cl2',{Cl:2}]],p:[['NaCl',{Na:1,Cl:1}]],l:2},
+ {n:'Horenie horčíka (biely plameň)',r:[['Mg',{Mg:1}],['O2',{O:2}]],p:[['MgO',{Mg:1,O:1}]],l:2},
+ {n:'Horenie metánu (zemný plyn)',r:[['CH4',{C:1,H:4}],['O2',{O:2}]],p:[['CO2',{C:1,O:2}],['H2O',{H:2,O:1}]],l:2},
+ {n:'Syntéza amoniaku',r:[['N2',{N:2}],['H2',{H:2}]],p:[['NH3',{N:1,H:3}]],l:2},
+ {n:'Rozklad peroxidu vodíka',r:[['H2O2',{H:2,O:2}]],p:[['H2O',{H:2,O:1}],['O2',{O:2}]],l:2},
+ {n:'Zinok a kyselina chlorovodíková',r:[['Zn',{Zn:1}],['HCl',{H:1,Cl:1}]],p:[['ZnCl2',{Zn:1,Cl:2}],['H2',{H:2}]],l:2},
+ {n:'Hrdzavenie železa (zjednodušene)',r:[['Fe',{Fe:1}],['O2',{O:2}]],p:[['Fe2O3',{Fe:2,O:3}]],l:3},
+ {n:'Horenie propánu',r:[['C3H8',{C:3,H:8}],['O2',{O:2}]],p:[['CO2',{C:1,O:2}],['H2O',{H:2,O:1}]],l:3},
+ {n:'Fotosyntéza',r:[['CO2',{C:1,O:2}],['H2O',{H:2,O:1}]],p:[['C6H12O6',{C:6,H:12,O:6}],['O2',{O:2}]],l:3},
+ {n:'Horenie síry a kyslé dažde',r:[['SO2',{S:1,O:2}],['O2',{O:2}]],p:[['SO3',{S:1,O:3}]],l:3}];
+const ATC={H:'#EDEFF2',C:'#3A3F45',O:'#E04A3F',N:'#3F6FE0',Cl:'#3DBE5A',Na:'#9D63E0',Mg:'#2E9E6E',Fe:'#D9822B',Zn:'#8A9BB0',S:'#E8C93A'};
+function mountReactions(root){
+  let pool=shuffle(RX.filter(r=>r.l<=Math.max(2,S.lvl)));let idx=0;let rx,co,anim=null;
+  root.innerHTML=`<div class="card" style="margin-bottom:12px"><div class="row" style="justify-content:space-between"><div><div class="kicker">Reakcia</div><h3 id="rname" style="font-size:20px"></h3></div><button class="btn" id="rnext">Ďalšia rovnica</button></div><div class="eq" id="req" style="margin-top:10px"></div></div>
+   <div class="stage"><canvas class="cv" id="rcv" style="aspect-ratio:16/9"></canvas>
+   <div class="panel"><div class="card"><h3>Počty atómov</h3><table class="cnt" id="rcnt"></table></div>
+    <div class="card"><svg viewBox="0 0 240 110" style="width:100%;height:auto" aria-label="Váhy"><path d="M120 24v70M90 100h60" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><g id="rbeam" style="transition:transform .5s;transform-origin:120px 24px"><path d="M40 24h160" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><path d="M40 24l-22 34h44zM200 24l-22 34h44z" fill="color-mix(in oklab,var(--accent) 18%,var(--surface))" stroke="var(--ink)" stroke-width="2"/><text x="40" y="76" text-anchor="middle" font-size="11" fill="var(--muted)">reaktanty</text><text x="200" y="76" text-anchor="middle" font-size="11" fill="var(--muted)">produkty</text></g><circle cx="120" cy="24" r="5" fill="var(--ink)"/></svg>
+     <div id="rmass" class="mono" style="font-size:13px;text-align:center"></div><div class="fb" id="rfb" style="text-align:center;margin-top:6px"></div><div class="row" style="justify-content:center"><button class="btn pri" id="rplay" hidden>Prehraj reakciu</button></div></div>
+    <details class="why"><summary>Prečo nemôžem zmeniť malé číslo v H₂O?</summary><p>Index (malé číslo) určuje, z čoho sa skladá látka. H₂O je voda, ale H₂O₂ je peroxid vodíka – úplne iná látka. Pri vyrovnávaní meníme iba koeficienty, teda počet molekúl.</p></details></div></div>`;
+  const species=()=>[...rx.r,...rx.p];
+  function load(){rx=pool[idx%pool.length];co=species().map(()=>1);anim=null;$('#rname').textContent=rx.n;render()}
+  function render(){
+    const sp=species();const nr=rx.r.length;
+    $('#req').innerHTML=sp.map((s,i)=>`${i===nr?'<span style="font-size:28px">→</span>':i?'<span>+</span>':''}<span class="coef"><span class="cbtns"><button data-i="${i}" data-d="-1" aria-label="Zníž koeficient">−</button><button data-i="${i}" data-d="1" aria-label="Zvýš koeficient">+</button></span><span><span class="cv2">${co[i]>1?co[i]:'&nbsp;'}</span>${subf(s[0])}</span></span>`).join('');
+    $$('#req button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;co[i]=clamp(co[i]+ +b.dataset.d,1,9);anim=null;render()});
+    const els=[...new Set(sp.flatMap(s=>Object.keys(s[1])))];const cnt=side=>{const o={};(side?rx.p:rx.r).forEach((s,i)=>{const c=co[i+(side?nr:0)];for(const e in s[1])o[e]=(o[e]||0)+s[1][e]*c});return o};
+    const L=cnt(0),R=cnt(1);const ok=els.every(e=>L[e]===R[e]);
+    $('#rcnt').innerHTML=`<tr><th>prvok</th><th>vľavo</th><th>vpravo</th><th></th></tr>`+els.map(e=>`<tr><td><span class="dot" style="background:${ATC[e]};border:1px solid var(--line);vertical-align:-2px"></span> ${e}</td><td class="mono">${L[e]||0}</td><td class="mono">${R[e]||0}</td><td>${L[e]===R[e]?'<span style="color:var(--good)">✓</span>':'<span style="color:var(--bad)">✗</span>'}</td></tr>`).join('');
+    const m=o=>Object.entries(o).reduce((a,[e,n])=>a+BYSYM[e].mass*n,0);const mL=m(L),mR=m(R);
+    $('#rbeam').style.transform=`rotate(${clamp((mR-mL)/Math.max(mL,mR)*40,-14,14)}deg)`;
+    $('#rmass').textContent=`m(reaktanty) = ${fmt(mL,2)} u · m(produkty) = ${fmt(mR,2)} u`;
+    const g=co.reduce((a,b)=>{while(b){[a,b]=[b,a%b]}return a});
+    const fb=$('#rfb');if(ok&&g>1){fb.textContent='Vyrovnané, ale dá sa to s menšími číslami.';fb.className='fb'}else if(ok){fb.textContent='Vyrovnané! Hmotnosť sa zachovala.';fb.className='fb ok'}else{fb.textContent='Ešte nie – porovnaj počty atómov.';fb.className='fb'}
+    $('#rplay').hidden=!ok;
+  }
+  $('#rnext').onclick=()=>{idx++;load()};$('#rplay').onclick=()=>{anim={t:0}};
+  load();
+  function layout(side,w,h,k){const sp=side?rx.p:rx.r;const off=side?rx.r.length:0;const x0=side?w*.55:w*.02,x1=side?w*.98:w*.45;const atoms=[];
+    const r=clamp(Math.min(w,h)/34,5,11);let x=x0+r*2,y=h*.22;const rowH=r*6;
+    sp.forEach((s,i)=>{const list=[];for(const e in s[1])for(let j=0;j<s[1][e];j++)list.push(e);list.sort((a,b)=>BYSYM[b].mass-BYSYM[a].mass);
+      const pts=list.map((e,j)=>{const rr=j?r*1.35*Math.sqrt(j):0;const a=j*2.4;return[Math.cos(a)*rr,Math.sin(a)*rr,e]});const ext=r*(1.6*Math.sqrt(list.length)+1);
+      for(let c=0;c<co[i+off];c++){if(x+ext>x1){x=x0+r*2;y+=Math.max(rowH,ext*2.2)}pts.forEach(([dx,dy,e])=>atoms.push({x:x+dx,y:y+dy,e,r:e==='H'?r*.75:r}));x+=ext*2+r}x+=r*1.5});return atoms}
+  return loop((dt)=>{const cv=$('#rcv',root);const{ctx,w,h}=fitCanvas(cv);const k=C();ctx.clearRect(0,0,w,h);
+    ctx.fillStyle=k.muted;ctx.font='700 30px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('→',w*.5,h*.5);
+    const A=layout(0,w,h,k),B=layout(1,w,h,k);
+    if(anim){anim.t+=dt/(RM?.4:2.2);const tt=ease(clamp(anim.t,0,1));const pool2={};B.forEach(b=>(pool2[b.e]=pool2[b.e]||[]).push(b));const used={};
+      A.forEach(a=>{const lst=pool2[a.e]||[];const i=used[a.e]=(used[a.e]||0);used[a.e]++;const b=lst[i]||a;const x=lerp(a.x,b.x,tt),y=lerp(a.y,b.y,tt)-Math.sin(tt*Math.PI)*h*.18;circle(ctx,x,y,a.r,ATC[a.e],k.ink,.8)});
+      if(anim.t>1.6)anim=null}
+    else{ctx.globalAlpha=1;A.forEach(a=>circle(ctx,a.x,a.y,a.r,ATC[a.e],k.ink,.8));ctx.globalAlpha=.9;B.forEach(a=>circle(ctx,a.x,a.y,a.r,ATC[a.e],k.ink,.8));ctx.globalAlpha=1}
+  });
+}
+
+/* ================= LAB: pH ================= */
+const SUBST=[
+ {n:'Žalúdočná šťava',ph:1.5,note:'Kyselina chlorovodíková v žalúdku pomáha tráviť bielkoviny.'},
+ {n:'Citrónová šťava',ph:2.3,note:'Kyselina citrónová – bezpečná na domáci pokus.'},
+ {n:'Kola',ph:2.5,note:'Obsahuje kyselinu fosforečnú – preto škodí zubnej sklovine.'},
+ {n:'Ocot',ph:2.9,note:'Kyselina octová – bezpečná na domáci pokus.'},
+ {n:'Mlieko',ph:6.6,note:'Takmer neutrálne.'},
+ {n:'Destilovaná voda',ph:7,note:'Neutrálna – pH 7.'},
+ {n:'Sóda bikarbóna',ph:8.4,note:'Hydrogénuhličitan sodný – slabo zásaditý.'},
+ {n:'Mydlová voda',ph:10,note:'Zásaditá – preto mydlo štípe v očiach.'},
+ {n:'Čpavok (čistič)',ph:11.5,note:'Silne zásaditý – nikdy nemiešať s inými čističmi!'},
+ {n:'Čistič odpadov',ph:13.5,note:'Hydroxid sodný – žieravina! Pokus iba virtuálne.'}];
+const PHSTOPS=[[0,'#C81D3A'],[2,'#D7263D'],[4,'#E0457B'],[5.5,'#A24CC2'],[7,'#6A5ACD'],[8,'#3F7FD6'],[10,'#2BA89A'],[12,'#6CC24A'],[14,'#E8D33F']];
+function phColor(p){for(let i=1;i<PHSTOPS.length;i++){if(p<=PHSTOPS[i][0]){const[a,ca]=PHSTOPS[i-1],[b,cb]=PHSTOPS[i];return mixHex(ca,cb,(p-a)/(b-a))}}return PHSTOPS.at(-1)[1]}
+function mixHex(a,b,t){const pa=[1,3,5].map(i=>parseInt(a.slice(i,i+2),16)),pb=[1,3,5].map(i=>parseInt(b.slice(i,i+2),16));return'#'+pa.map((v,i)=>Math.round(lerp(v,pb[i],t)).toString(16).padStart(2,'0')).join('')}
+function mountPH(root){
+  const st={mode:'ind',cur:'#7B4FA8',target:'#7B4FA8',ph:null,pour:0,vb:0,pts:[[0,1]]};
+  root.innerHTML=`<div class="subtabs" style="margin-bottom:12px"><button class="chip" data-m="ind" aria-pressed="true">Indikátor a látky z domácnosti</button><button class="chip" data-m="neu">Neutralizácia</button></div>
+   <div class="stage"><div style="display:grid;gap:10px"><canvas class="cv" id="hcv" style="aspect-ratio:4/3"></canvas><div class="card"><div class="phscale"><span class="mk" id="hmk" style="left:50%"></span></div><div class="phticks">${[...Array(15).keys()].map(i=>`<span>${i}</span>`).join('')}</div></div></div>
+   <div class="panel" id="hpanel"></div></div>`;
+  function panelInd(){$('#hpanel').innerHTML=`<div class="card"><h3>Vyber látku a nalej ju do indikátora</h3><div class="swatches" id="hsw">${SUBST.map((s,i)=>`<button data-i="${i}">${s.n}</button>`).join('')}</div></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><div class="readout mono" id="hph">pH ?</div><span class="pill" id="hkind">indikátor z červenej kapusty</span></div><div class="caption" id="hnote" style="margin-top:8px">Odvar z červenej kapusty je fialový. V kyselinách sčervenie, v zásadách zozelenie až zožltne.</div></div>
+    <details class="why"><summary>Over si</summary><p>Ktoré dve látky z ponuky by si zmiešal(a), aby vznikol roztok s pH blízko 7? Zdôvodni. (Nápad: kyselina + zásada sa navzájom neutralizujú.)</p></details>`;
+    $$('#hsw button').forEach(b=>b.onclick=()=>{$$('#hsw button').forEach(x=>x.setAttribute('aria-pressed',x===b));const s=SUBST[+b.dataset.i];st.target=phColor(s.ph);st.ph=s.ph;st.pour=1;
+      $('#hph').textContent=`pH ${fmt(s.ph,1)}`;$('#hkind').textContent=s.ph<6.5?'kyslý roztok':s.ph>7.5?'zásaditý roztok':'neutrálny roztok';$('#hnote').textContent=s.note;$('#hmk').style.left=`${s.ph/14*100}%`})}
+  function phAt(V){const nA=.002,nB=.1*V/1000,Vt=(20+V)/1000;if(Math.abs(nA-nB)<1e-7)return 7;return nA>nB?-Math.log10((nA-nB)/Vt):14+Math.log10((nB-nA)/Vt)}
+  function panelNeu(){$('#hpanel').innerHTML=`<div class="card"><h3>20 ml kyseliny HCl (0,1 mol/l) + indikátor</h3><p style="margin:0 0 8px;font-size:14px;color:var(--muted)">Prilievaj roztok NaOH (0,1 mol/l) a sleduj farbu aj pH.</p><div class="row"><button class="btn pri" data-v="1">+1 ml NaOH</button><button class="btn" data-v="0.1">+0,1 ml</button><button class="btn" data-v="5">+5 ml</button><button class="btn" id="hres">Znova</button></div></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><div class="readout mono" id="hph"></div><span class="mono" id="hvol"></span></div><canvas class="cv" id="hgr" style="aspect-ratio:16/9;margin-top:8px;border:0"></canvas><div class="caption" id="hnote"></div></div>
+    <details class="why"><summary>Čo je bod ekvivalencie?</summary><p>Okamih, keď je množstvo pridanej zásady rovnaké ako množstvo kyseliny na začiatku. HCl + NaOH → NaCl + H₂O. Blízko neho stačí kvapka, aby sa pH zmenilo o niekoľko jednotiek – preto je krivka v strede taká strmá.</p></details>`;
+    const upd=()=>{const p=phAt(st.vb);st.target=phColor(p);$('#hph').textContent=`pH ${fmt(p,2)}`;$('#hvol').textContent=`NaOH: ${fmt(st.vb,1)} ml`;$('#hmk').style.left=`${p/14*100}%`;
+      $('#hnote').textContent=st.vb<19?'V roztoku prevládajú ióny H⁺ – roztok je kyslý.':st.vb<=21?'Blízko bodu ekvivalencie! Kyselina a zásada sa práve zneutralizovali na soľ a vodu.':'Prebytok iónov OH⁻ – roztok je teraz zásaditý.'};
+    $$('#hpanel [data-v]').forEach(b=>b.onclick=()=>{st.vb=clamp(Math.round((st.vb+ +b.dataset.v)*10)/10,0,40);st.pts.push([st.vb,phAt(st.vb)]);st.pour=.6;upd()});
+    $('#hres').onclick=()=>{st.vb=0;st.pts=[[0,phAt(0)]];upd()};st.vb=0;st.pts=[[0,phAt(0)]];upd()}
+  function setMode(m){st.mode=m;$$('.subtabs .chip',root).forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m));if(m==='ind'){st.target='#7B4FA8';st.cur='#7B4FA8';$('#hmk').style.left='50%';panelInd()}else panelNeu()}
+  $$('.subtabs .chip',root).forEach(b=>b.onclick=()=>setMode(b.dataset.m));setMode('ind');
+  return loop((dt,t)=>{st.cur=mixHex(st.cur,st.target,Math.min(1,dt*1.6));st.pour=Math.max(0,st.pour-dt*.8);
+    const cv=$('#hcv',root);const{ctx,w,h}=fitCanvas(cv);const k=C();ctx.clearRect(0,0,w,h);
+    const bw=Math.min(w*.42,h*.62),bx=w/2-bw/2,top=h*.22,bot=h*.9;const lvl=st.mode==='neu'?lerp(bot-(bot-top)*.35,bot-(bot-top)*.8,st.vb/40):bot-(bot-top)*.55;
+    ctx.fillStyle=st.cur;ctx.beginPath();ctx.moveTo(bx+3,lvl);ctx.lineTo(bx+bw-3,lvl);ctx.lineTo(bx+bw-3,bot-12);ctx.quadraticCurveTo(bx+bw-3,bot-3,bx+bw-14,bot-3);ctx.lineTo(bx+14,bot-3);ctx.quadraticCurveTo(bx+3,bot-3,bx+3,bot-12);ctx.closePath();ctx.fill();
+    ctx.globalAlpha=.25;ctx.fillStyle='#fff';ctx.fillRect(bx+bw*.12,lvl+6,bw*.06,(bot-lvl)*.7);ctx.globalAlpha=1;
+    if(!RM){ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=2;ctx.beginPath();for(let x=bx+6;x<bx+bw-6;x+=4)ctx.lineTo(x,lvl+Math.sin(x*.08+t*3)*1.5);ctx.stroke()}
+    ctx.strokeStyle=k.ink;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx-6,top);ctx.lineTo(bx,top+6);ctx.lineTo(bx,bot-12);ctx.quadraticCurveTo(bx,bot,bx+12,bot);ctx.lineTo(bx+bw-12,bot);ctx.quadraticCurveTo(bx+bw,bot,bx+bw,bot-12);ctx.lineTo(bx+bw,top+6);ctx.lineTo(bx+bw+6,top);ctx.stroke();
+    ctx.fillStyle=k.muted;ctx.font='11px JetBrains Mono, monospace';ctx.textAlign='left';for(let i=1;i<=4;i++){const y=bot-(bot-top)*i/5;ctx.fillRect(bx+bw-14,y,10,1.5);}
+    if(st.pour>0){ctx.globalAlpha=Math.min(1,st.pour*2);ctx.fillStyle=st.mode==='neu'?'#D9E8F5':'#C9D6DE';const sx=w/2+bw*.15;ctx.fillRect(sx-2,0,4,lvl);for(let i=0;i<5;i++){const yy=(t*400+i*60)%lvl;circle(ctx,sx,yy,3,ctx.fillStyle)}ctx.globalAlpha=1}
+    if(st.mode==='neu'){const g=$('#hgr',root);if(!g)return;const G=fitCanvas(g);const c=G.ctx;c.clearRect(0,0,G.w,G.h);const L=28,B=18,gw=G.w-L-6,gh=G.h-B-6;
+      c.font='10px JetBrains Mono, monospace';c.fillStyle=k.muted;c.textAlign='right';c.textBaseline='middle';[0,7,14].forEach(v=>{const y=6+gh*(1-v/14);c.strokeStyle=k.line;c.lineWidth=v===7?1.2:.6;c.setLineDash(v===7?[4,4]:[]);c.beginPath();c.moveTo(L,y);c.lineTo(L+gw,y);c.stroke();c.setLineDash([]);c.fillText(v,L-4,y)});
+      c.textAlign='center';[0,10,20,30,40].forEach(v=>c.fillText(v+' ml',L+gw*v/40,G.h-6));
+      const pts=[...st.pts].sort((a,b)=>a[0]-b[0]);c.strokeStyle=k.accent;c.lineWidth=2.4;c.beginPath();pts.forEach(([v,p],i)=>{const x=L+gw*v/40,y=6+gh*(1-p/14);i?c.lineTo(x,y):c.moveTo(x,y)});c.stroke();pts.forEach(([v,p])=>circle(c,L+gw*v/40,6+gh*(1-p/14),3,phColor(p),k.ink,.8))}
+  });
+}
+
+/* ================= LAB: flame ================= */
+const FLAMES=[
+ {z:3,salt:'LiCl',c:'#E0283F',col:'karmínovo červená',lines:[[670.8,1],[610.4,.3]]},
+ {z:11,salt:'NaCl',c:'#FFB000',col:'žltooranžová',lines:[[589.0,1],[589.6,.9]]},
+ {z:19,salt:'KCl',c:'#B57EDC',col:'fialová (svetlofialová)',lines:[[766.5,1],[769.9,.8],[404.4,.4]]},
+ {z:20,salt:'CaCl₂',c:'#E8622A',col:'tehlovo červená',lines:[[622,1],[554,.6],[422.7,.5]]},
+ {z:38,salt:'SrCl₂',c:'#F0102B',col:'jasno červená',lines:[[650,1],[661,.8],[681,.6],[460.7,.4]]},
+ {z:56,salt:'BaCl₂',c:'#A6D84A',col:'žltozelená',lines:[[553.5,1],[524,.6],[513,.5]]},
+ {z:29,salt:'CuCl₂',c:'#22C7A6',col:'zelenomodrá',lines:[[510.6,1],[515.3,.8],[521.8,.8],[465,.4]]}];
+function wl2rgb(l){let r=0,g=0,b=0;if(l<440){r=-(l-440)/60;b=1}else if(l<490){g=(l-440)/50;b=1}else if(l<510){g=1;b=-(l-510)/20}else if(l<580){r=(l-510)/70;g=1}else if(l<645){r=1;g=-(l-645)/65}else r=1;
+  const f=l<420?.3+.7*(l-380)/40:l>700?.3+.7*(780-l)/80:1;return`rgb(${[r,g,b].map(v=>Math.round(255*Math.pow(v*f,.8))).join(',')})`}
+function mountFlame(root){
+  const st={cur:null,ins:0,hidden:null,mix:0,parts:[]};
+  root.innerHTML=`<div class="stage"><canvas class="cv" id="fcv" style="aspect-ratio:3/4;max-height:620px;background:#0B1218"></canvas>
+   <div class="panel"><div class="card"><h3>Vzorka na platinovom drôtiku</h3><div class="swatches" id="fsw">${FLAMES.map((f,i)=>`<button data-i="${i}">${f.salt}</button>`).join('')}</div><div class="row" style="margin-top:10px"><button class="btn" id="fclean">Vyčisti drôtik</button></div></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><div><div class="kicker">Farba plameňa</div><div id="fcol" style="font-family:var(--f-display);font-weight:800;font-size:20px">modrý plameň kahana</div></div><canvas id="fel" width="96" height="96" style="width:96px;height:96px"></canvas></div><div class="caption" id="fcap" style="font-size:14px">Čistý plameň plynového kahana je modrý.</div>
+     <div class="kicker" style="margin-top:6px">Čiarové spektrum (zjednodušené)</div><canvas id="fsp" class="cv" style="aspect-ratio:8/1;background:#05090C;border:0"></canvas><div class="phticks"><span>400 nm</span><span>500</span><span>600</span><span>700 nm</span></div></div>
+    <div class="card"><h3>Neznáma vzorka</h3><p style="margin:0 0 8px;font-size:14px;color:var(--muted)">Laborant ti podá vzorku bez štítku. Vlož ju do plameňa a urči prvok.</p><button class="btn pri" id="funk">Daj mi neznámu vzorku</button><div class="swatches" id="fans" style="margin-top:8px"></div><div class="fb" id="ffb"></div></div>
+    <details class="why"><summary>Prečo každý prvok svieti inou farbou?</summary><p>Elektróny môžu mať len určité energie. Teplom preskočia na vyššiu hladinu a pri návrate vyžiaria fotón presne danej energie, teda presne danej farby. Rozdiely hladín sú pre každý prvok iné – spektrum je ako „odtlačok prsta“ prvku. Podľa spektier astronómovia zisťujú, z čoho sú hviezdy.</p></details>
+   </div></div>`;
+  function insert(f){st.cur=f;st.ins=0;st.mix=0;
+    if(st.hidden){$('#fcol').textContent='Aká je to farba?';$('#fcap').textContent='Porovnaj farbu so vzorkami, ktoré už poznáš.'}
+    else{$('#fcol').textContent=f.col;$('#fcap').innerHTML=`${E[f.z-1].n} (${E[f.z-1].s}) – ${f.salt}. ${f.z===11?'Žltú farbu sodíka vidíš aj v pouličných lampách.':f.z===38?'Stroncium dáva červenú farbu ohňostrojom.':f.z===56?'Bárium farbí ohňostroje na zeleno.':f.z===29?'Meď dáva ohňostrojom modrozelené odtiene.':''}`}}
+  $$('#fsw button').forEach(b=>b.onclick=()=>{st.hidden=null;$('#fans').innerHTML='';$('#ffb').textContent='';$$('#fsw button').forEach(x=>x.setAttribute('aria-pressed',x===b));insert(FLAMES[+b.dataset.i])});
+  $('#fclean').onclick=()=>{st.cur=null;$$('#fsw button').forEach(x=>x.setAttribute('aria-pressed','false'));$('#fcol').textContent='modrý plameň kahana';$('#fcap').textContent='Čistý plameň plynového kahana je modrý.'};
+  $('#funk').onclick=()=>{const f=pick(FLAMES);st.hidden=f;$$('#fsw button').forEach(x=>x.setAttribute('aria-pressed','false'));insert(f);$('#ffb').textContent='';
+    $('#fans').innerHTML=shuffle(FLAMES).map(x=>`<button data-z="${x.z}">${E[x.z-1].n}</button>`).join('');
+    $$('#fans button').forEach(b=>b.onclick=()=>{const ok=+b.dataset.z===f.z;$('#ffb').textContent=ok?`Správne – ${E[f.z-1].n}, ${f.col} plameň.`:'Nie celkom. Pozri sa na farbu ešte raz a porovnaj so známymi vzorkami.';$('#ffb').className='fb '+(ok?'ok':'no');b.style.borderColor=ok?'var(--good)':'var(--bad)';if(ok){st.hidden=null;insert(f)}})};
+  return loop((dt,t)=>{const cv=$('#fcv',root);const{ctx,w,h}=fitCanvas(cv);ctx.clearRect(0,0,w,h);
+    st.ins=Math.min(1,st.ins+dt*1.2);st.mix=st.cur?Math.min(1,st.mix+dt*.9*(st.ins>.7?1:0)):Math.max(0,st.mix-dt);
+    const bx=w/2,by=h*.86;ctx.fillStyle='#5D6A75';ctx.fillRect(bx-w*.06,by,w*.12,h*.14);ctx.fillStyle='#7C8994';ctx.fillRect(bx-w*.09,by+h*.1,w*.18,h*.04);
+    const fc=st.cur?st.cur.c:'#FFB000';const n=RM?2:6;for(let i=0;i<n;i++)st.parts.push({x:bx+(Math.random()-.5)*w*.06,y:by,vx:(Math.random()-.5)*20,vy:-(140+Math.random()*120)*h/600,life:0,max:.7+Math.random()*.6});
+    ctx.globalCompositeOperation='lighter';
+    st.parts=st.parts.filter(p=>{p.life+=dt;p.x+=p.vx*dt+Math.sin(t*9+p.y*.05)*.5;p.y+=p.vy*dt;const a=1-p.life/p.max;if(a<=0)return false;const r=(w*.05)*(.4+a);
+      const blue=p.life<.25;const col=blue?'#4D7CFF':(st.mix>0?fc:'#3B5BD9');const al=blue?.12*a:(st.mix>0?.1+.12*st.mix:.05)*a;ctx.globalAlpha=al;circle(ctx,p.x,p.y,r,col);return true});
+    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+    const wx=lerp(w*1.05,bx+w*.02,ease(st.cur?st.ins:0)),wy=h*.5;ctx.strokeStyle='#C9D3DA';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(w,wy-h*.12);ctx.lineTo(wx+12,wy);ctx.stroke();ctx.beginPath();ctx.arc(wx+6,wy,6,0,Math.PI*2);ctx.stroke();
+    if(st.cur){ctx.fillStyle='#F2F2F2';circle(ctx,wx+6,wy,4,'#EDEDED')}
+    // electron jump
+    const ec=$('#fel');if(ec){const c=ec.getContext('2d');const k=C();c.clearRect(0,0,96,96);circle(c,48,48,7,k.proton);circle(c,48,48,20,null,k.line,1.2);circle(c,48,48,36,null,k.line,1.2);
+      const ph=(t*.8)%1;const up=st.cur&&!RM;const r=up?(ph<.4?lerp(20,36,ease(ph/.4)):ph<.6?36:lerp(36,20,ease((ph-.6)/.2>1?1:(ph-.6)/.2))):20;circle(c,48+r*Math.cos(-.6),48+r*Math.sin(-.6),4,k.electron);
+      if(up&&ph>.6&&ph<1){const q=(ph-.6)/.4;c.strokeStyle=fc;c.lineWidth=2;c.beginPath();for(let i=0;i<20;i++){const x=48+20*Math.cos(-.6)+q*40+i*1.4,y=48+20*Math.sin(-.6)-q*30+Math.sin(i*1.2)*3;i?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()}}
+    const sc=$('#fsp');if(sc){const S2=fitCanvas(sc);const c=S2.ctx;c.fillStyle='#05090C';c.fillRect(0,0,S2.w,S2.h);if(st.cur&&st.mix>.3)st.cur.lines.forEach(([l,I])=>{const x=(l-380)/(780-380)*S2.w;c.globalAlpha=I*st.mix;c.fillStyle=wl2rgb(l);c.fillRect(x-1.5,0,3,S2.h)});c.globalAlpha=1}
+  });
+}
+
+/* ================= HUNT ================= */
+const COMMON=[1,2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,26,29,30,47,50,53,79,80,82];
+function huntTasks(){const L=S.lvl;const T=[];const used=new Set();
+  const gens1=[
+   ()=>{const z=pick(COMMON);return{q:pick([`Nájdi prvok so značkou ${E[z-1].s}.`,`Kde je prvok so značkou ${E[z-1].s}?`]),ok:e=>e.z===z,ans:z}},
+   ()=>{const z=pick(COMMON);return{q:pick([`Ťukni na prvok ${E[z-1].n}.`,`Kde sa skrýva ${E[z-1].n}?`]),ok:e=>e.z===z,ans:z}},
+   ()=>{const[s,v]=pick(Object.entries(NOTES).filter(([k,v])=>v.clue));const z=BYSYM[s].z;return{q:`Nájdi prvok, ktorý ${v.clue}.`,ok:e=>e.z===z,ans:z}},
+   ()=>({q:'Nájdi ľubovoľný vzácny plyn.',ok:e=>e.cat==='ng',ans:10}),
+   ()=>({q:'Nájdi kov, ktorý je pri izbovej teplote kvapalný.',ok:e=>e.z===80,ans:80})];
+  const gens2=[
+   ()=>{const z=rnd(1,56);return{q:`Nájdi prvok s protónovým číslom ${z}.`,ok:e=>e.z===z,ans:z}},
+   ()=>{const e0=pick(E.filter(e=>e.val&&e.period<=5));return{q:`Nájdi prvok v ${e0.group}. skupine a ${e0.period}. perióde.`,ok:e=>e.z===e0.z,ans:e0.z}},
+   ()=>{const e0=pick(E.filter(e=>e.val&&e.period>=2&&e.period<=5&&e.cat!=='ng'));return{q:`Nájdi prvok ${e0.period}. periódy, ktorý má ${e0.val} valenčn${e0.val===1?'ý elektrón':e0.val<5?'é elektróny':'ých elektrónov'}.`,ok:e=>e.z===e0.z,ans:e0.z}},
+   ()=>{const p=rnd(2,5);const e0=E.find(e=>e.cat==='hl'&&e.period===p);return{q:`Nájdi halogén ${p}. periódy.`,ok:e=>e.z===e0.z,ans:e0.z}},
+   ()=>{const p=rnd(2,6);const e0=E.find(e=>e.cat==='am'&&e.period===p);return{q:`Nájdi alkalický kov ${p}. periódy.`,ok:e=>e.z===e0.z,ans:e0.z}},
+   ()=>({q:'Nájdi ľubovoľný polokov.',ok:e=>e.kind==='polokov',ans:14})];
+  const gens3=[
+   ()=>{const e0=pick(E.filter(e=>e.val&&e.z>=3&&e.z<=56&&e.cat!=='ng'));return{q:`Nájdi prvok s elektrónovou konfiguráciou ${cfgStr(e0.z)}.`,ok:e=>e.z===e0.z,ans:e0.z}},
+   ()=>{const e0=pick(E.filter(e=>[1,2,16,17].includes(e.group)&&e.period>=2&&e.period<=5));const q=e0.group<=2?e0.group:-(18-e0.group);const ec=e0.z-q;
+     return{q:`Nájdi prvok, ktorý tvorí ${q>0?'katión':'anión'} s nábojom ${q>0?'+':'−'}${Math.abs(q)} a ${ec} elektrónmi.`,ok:e=>e.z===e0.z,ans:e0.z}},
+   ()=>{const p=rnd(2,5);const cand=E.filter(e=>e.period===p&&e.row<=7&&e.en&&e.cat!=='ng');const best=cand.reduce((a,b)=>b.en>a.en?b:a);return{q:`Nájdi prvok ${p}. periódy s najväčšou elektronegativitou (bez vzácnych plynov).`,ok:e=>e.z===best.z,ans:best.z}},
+   ()=>{const p=rnd(2,6);const cand=E.filter(e=>e.period===p&&e.row<=7&&e.en);const low=cand.reduce((a,b)=>b.en<a.en?b:a);return{q:`Nájdi prvok ${p}. periódy s najmenšou elektronegativitou.`,ok:e=>e.z===low.z,ans:low.z}},
+   ()=>{const p=rnd(3,6);const e0=E.find(e=>e.period===p&&e.group===2);return{q:`Nájdi prvok hlavnej skupiny, ktorého atóm má ${p} elektrónov${p<5?'é':'ých'} vrstv${p<5?'y':''} a 2 valenčné elektróny.`,ok:e=>e.z===e0.z,ans:e0.z}}];
+  const gens=L===1?gens1:L===2?[...gens2,...gens2,gens1[2]]:[...gens3,...gens3,...gens2];
+  let guard=0;while(T.length<8&&guard++<100){const t=pick(gens)();if(used.has(t.q))continue;used.add(t.q);T.push(t)}return T}
+function startHunt(){go('table');S.focus=null;$('#focusbar').hidden=true;S.hunt={tasks:huntTasks(),i:0,score:0,tries:0};$('#huntbar').hidden=false;showHunt()}
+function showHunt(){const H=S.hunt;const t=H.tasks[H.i];$('#huntprog').textContent=`${H.i+1}/${H.tasks.length} · body ${H.score}`;$('#huntq').textContent=t.q;$('#huntfb').textContent='';H.tries=0}
+function huntTap(z,cell){const H=S.hunt;const t=H.tasks[H.i];const e=E[z-1];
+  if(t.ok(e)){cell.classList.remove('ok');void cell.offsetWidth;cell.classList.add('ok');if(H.tries===0)H.score++;$('#huntfb').textContent=`✓ ${e.n}`;setTimeout(nextHunt,900)}
+  else{H.tries++;cell.classList.remove('no');void cell.offsetWidth;cell.classList.add('no');$('#huntfb').textContent=H.tries>=2?`Tip: hľadaj v ${E[t.ans-1].period}. perióde.`:`To je ${e.n}. Skús znova.`}}
+function nextHunt(){const H=S.hunt;if(!H)return;H.i++;if(H.i>=H.tasks.length){const best=Math.max(LS.get('hunt'+S.lvl,0),H.score);LS.set('hunt'+S.lvl,best);$('#huntq').textContent=`Hotovo! ${H.score} z ${H.tasks.length} na prvý pokus.`;$('#huntprog').textContent='';$('#huntfb').textContent='';$('#huntskip').textContent='Hrať znova';$('#huntskip').onclick=()=>{$('#huntskip').textContent='Preskočiť';$('#huntskip').onclick=skipHunt;startHunt()};return}showHunt()}
+function skipHunt(){if(S.hunt){const t=S.hunt.tasks[S.hunt.i];const c=$(`#ptable .cell[data-z="${t.ans}"]`);c.classList.remove('ok');void c.offsetWidth;c.classList.add('ok');$('#huntfb').textContent=`Bolo to ${E[t.ans-1].n}.`;setTimeout(nextHunt,1200)}}
+$('#huntskip').onclick=skipHunt;
+$('#huntstop').onclick=()=>{S.hunt=null;$('#huntbar').hidden=true;$('#huntskip').textContent='Preskočiť';$('#huntskip').onclick=skipHunt};
+$('#starthunt').onclick=startHunt;
+
+/* ================= QUIZ ================= */
+function numOpts(c,spread=3,min=0){const s=new Set([c]);let g=0;while(s.size<4&&g++<50){const v=c+rnd(-spread,spread);if(v>=min&&v!==c)s.add(v)}return shuffle([...s])}
+function distract(c,pool,n=3){return shuffle([c,...shuffle(pool.filter(x=>x!==c)).slice(0,n)])}
+const STATIC_Q=[
+ {l:2,q:'Prečo majú prvky v jednej skupine podobné chemické vlastnosti?',a:'Majú rovnaký počet valenčných elektrónov.',w:['Majú rovnakú hmotnosť atómu.','Majú rovnaký počet neutrónov.','Objavili ich v rovnakom období.'],x:'Chemické správanie určujú najmä valenčné elektróny – tie sa zúčastňujú na väzbách.'},
+ {l:2,q:'Ktoré tvrdenie o izotopoch je pravdivé?',a:'Majú rovnaký počet protónov, ale rôzny počet neutrónov.',w:['Majú rovnaký počet neutrónov, ale rôzny počet protónov.','Sú to atómy rôznych prvkov s rovnakou hmotnosťou.','Líšia sa počtom elektrónov v obale.'],x:'Počet protónov určuje prvok. Izotopy toho istého prvku sa líšia len neutrónmi, a teda nukleónovým číslom.'},
+ {l:2,q:'Chceš overiť, či rýchlosť rozpúšťania cukru závisí od teploty vody. Ktorý postup je najlepší?',a:'Rovnaké množstvo cukru v rovnakom objeme vody pri rôznych teplotách, ostatné podmienky rovnaké.',w:['Rôzne množstvá cukru v rôznych pohároch s rôznou teplotou.','Jeden pohár horúcej vody, do ktorého postupne pridávam cukor.','Rozpustiť cukor raz v studenej vode a raz v mlieku.'],x:'Pri experimente meníme iba jednu premennú (teplotu). Všetko ostatné musí zostať rovnaké, inak nevieme, čo spôsobilo rozdiel.'},
+ {l:3,q:'Ión Na⁺ aj atóm Ne majú 10 elektrónov. Prečo je Na⁺ menší?',a:'Na⁺ má v jadre 11 protónov, ktoré silnejšie priťahujú rovnaký počet elektrónov.',w:['Na⁺ má menej elektrónových vrstiev ako Ne.','Neón má v jadre viac neutrónov.','Kladný náboj odpudzuje elektróny smerom von.'],x:'Rovnaký počet elektrónov, ale väčší náboj jadra – obal je priťahovaný silnejšie a zmenší sa.'},
+ {l:3,q:'Prečo je hélium v 18. skupine, hoci má len 2 valenčné elektróny?',a:'Jeho jediná vrstva je úplne zaplnená, preto sa správa ako vzácny plyn.',w:['Lebo je to plyn.','Lebo má 18 protónov.','Lebo ho objavili ako posledný plyn.'],x:'Vrstva K má miesto len pre 2 elektróny. Hélium ju má plnú – podobne ako ostatné vzácne plyny majú plnú vonkajšiu vrstvu.'},
+ {l:3,q:'Prečo smerom nadol v skupine rastie polomer atómu?',a:'Pribúdajú elektrónové vrstvy.',w:['Pribúdajú neutróny v jadre.','Klesá počet protónov.','Rastie elektronegativita.'],x:'Každá ďalšia perióda pridáva novú vrstvu elektrónov ďalej od jadra.'},
+ {l:3,q:'Prečo draslík reaguje s vodou búrlivejšie ako sodík?',a:'Jeho valenčný elektrón je ďalej od jadra a ľahšie sa odtrhne.',w:['Má viac valenčných elektrónov.','Má menšiu hmotnosť.','Má väčšiu elektronegativitu.'],x:'Draslík má o vrstvu viac. Valenčný elektrón je slabšie viazaný, preto ho atóm odovzdá ľahšie.'}];
+function quizQs(){const L=S.lvl;const out=[];const seen=new Set();
+  const com=COMMON.map(z=>E[z-1]);
+  const g1=[
+   ()=>{const e=pick(com);return{q:pick([`Ktorý prvok má značku ${e.s}?`,`Značka ${e.s} patrí prvku…`]),a:e.n,o:distract(e.n,com.map(x=>x.n)),x:`${e.s} je ${e.n}.`}},
+   ()=>{const e=pick(com);return{q:pick([`Aká je značka prvku ${e.n}?`,`Ako zapíšeš ${e.n} značkou?`]),a:e.s,o:distract(e.s,com.map(x=>x.s)),x:`${e.n} má značku ${e.s}.`}},
+   ()=>{const[s,v]=pick(Object.entries(NOTES).filter(([k,v])=>v.clue));const e=BYSYM[s];return{q:`Ktorý prvok ${v.clue}?`,a:e.n,o:distract(e.n,com.map(x=>x.n)),x:v.u||v.f}},
+   ()=>{const e=pick(com);const st=STATEC[room(e)].n;return{q:`Aké skupenstvo má ${e.n} pri izbovej teplote?`,a:st,o:['pevné','kvapalné','plynné'],x:`${e.n} je pri 25 °C ${st}.`}},
+   ()=>{const e=pick(com);return{q:`Je ${e.n} kov, polokov alebo nekov?`,a:e.kind,o:['kov','polokov','nekov'],x:`${e.n} patrí medzi ${CAT[e.cat].n}.`}}];
+  const LQ=[1,6,7,8,11,15,16,19,26,29,47,50,51,79,80,82].map(z=>E[z-1]);
+  const g2=[
+   ()=>{const[a,b]=shuffle(METALS.slice()).slice(0,2);const an=a.E<b.E?a:b;return{q:`V galvanickom článku ${mname(a)} – ${mname(b)}: ktorý kov sa bude rozpúšťať (anóda)?`,a:mname(an),o:shuffle([mname(a),mname(b)]),x:`${mname(an)} je v rade napätí viac vľavo – ľahšie stráca elektróny, oxiduje sa.`}},
+   ()=>{const e=pick(LQ);return{q:pick([`Prečo má ${e.n} značku ${e.s}?`,`Značka ${e.s} pochádza z latinského názvu…`]),a:e.la,o:distract(e.la,LQ.map(x=>x.la)),x:`${e.n} sa latinsky povie ${e.la}${ETYM[e.s]?' – '+ETYM[e.s]:''}.`}},
+   ()=>{const e=E[rnd(1,36)-1];return{q:pick([`Koľko protónov má atóm prvku ${e.n}?`,`Atóm ${e.s} má v jadre koľko protónov?`]),a:e.z,o:numOpts(e.z,3,1),x:`Počet protónov = protónové číslo = ${e.z}.`}},
+   ()=>{const z=rnd(1,20);const A=MAINISO[z-1];const e=E[z-1];return{q:`Koľko neutrónov má atóm ${sup(A)}${e.s}?`,a:A-z,o:numOpts(A-z,3,0),x:`N = A − Z = ${A} − ${z} = ${A-z}.`}},
+   ()=>{const[z,q]=pick([[11,1],[12,2],[13,3],[19,1],[20,2],[17,-1],[8,-2],[9,-1],[16,-2]]);const e=E[z-1];const ch=(Math.abs(q)>1?Math.abs(q):'')+(q>0?'+':'-');return{q:`Koľko elektrónov má ión ${e.s}${sup(ch)}?`,a:z-q,o:numOpts(z-q,3,0),x:`Atóm má ${z} e⁻; ${q>0?`odovzdal ${q}`:`prijal ${-q}`} → ${z-q} e⁻.`}},
+   ()=>{const e=pick(E.filter(x=>x.val&&x.period<=5));return{q:`Koľko valenčných elektrónov má ${e.n}?`,a:e.val,o:numOpts(e.val,2,1),x:`${e.n} je v ${e.group}. skupine → ${e.val} valenčn${e.val===1?'ý elektrón':e.val<5?'é elektróny':'ých elektrónov'}.`}},
+   ()=>{const e=pick(E.filter(x=>x.z<=54&&x.row<=7));return{q:`V ktorej perióde leží ${e.n}?`,a:e.period,o:numOpts(e.period,2,1),x:`${e.n} má elektróny v ${e.period} vrstvách → ${e.period}. perióda.`}},
+   ()=>{const e=pick(E.filter(x=>x.z<=56));const names=Object.values(CAT).map(c=>c.n);return{q:`Do ktorej skupiny prvkov patrí ${e.n}?`,a:CAT[e.cat].n,o:distract(CAT[e.cat].n,names),x:GENERIC[e.cat]}}];
+  const g3=[
+   ()=>{const[a,b]=shuffle(METALS.slice()).slice(0,2);const an=a.E<b.E?a:b,ca=an===a?b:a;const v=cellV(a,b);return{q:`Aké napätie má článok ${an.s} | ${ca.s}, ak E°(${an.s}) = ${fmt2(an.E,2)} V a E°(${ca.s}) = ${fmt2(ca.E,2)} V?`,a:`${fmt2(v,2)} V`,o:shuffle([`${fmt2(v,2)} V`,`${fmt2(Math.abs(an.E+ca.E),2)} V`,`${fmt2(Math.abs(an.E)+.5,2)} V`,`${fmt2(v/2,2)} V`]),x:`U = E°(katóda) − E°(anóda) = ${fmt2(ca.E,2)} − (${fmt2(an.E,2)}) = ${fmt2(v,2)} V.`}},
+   ()=>{const e=pick(LQ);return{q:`Ktorý prvok sa latinsky nazýva ${e.la}?`,a:e.n,o:distract(e.n,LQ.map(x=>x.n)),x:`${e.la} → značka ${e.s} → ${e.n}.`}},
+   ()=>{const e=pick(E.filter(x=>x.val&&x.z>=3&&x.z<=36));const near=E.filter(x=>Math.abs(x.z-e.z)<=6&&x.z!==e.z).map(x=>x.n);return{q:`Ktorý prvok má elektrónovú konfiguráciu ${cfgStr(e.z)}?`,a:e.n,o:distract(e.n,near),x:`Spočítaj elektróny: spolu ${e.z} → ${e.n}.`}},
+   ()=>{const pairs=[[11,17],[1,1],[1,8],[6,8],[19,9],[12,8],[1,17],[6,1],[7,1],[20,17],[29,30],[13,26]];const[a,b]=pick(pairs).map(z=>E[z-1]);const d=Math.abs(a.en-b.en);
+     const t=a.kind==='kov'&&b.kind==='kov'?'kovová':d<.4?'nepolárna kovalentná':d<1.7?'polárna kovalentná':'iónová';
+     return{q:`Aký typ väzby predpokladáš medzi ${a.n} a ${b.n}${a.z===b.z?' (dva rovnaké atómy)':''}?`,a:t,o:['iónová','polárna kovalentná','nepolárna kovalentná','kovová'],x:`ΔEN = ${fmt(d,2)}${a.kind==='kov'&&b.kind==='kov'?' – ale oba sú kovy':''} → ${t} väzba.`}},
+   ()=>{const set=shuffle(E.filter(x=>x.en&&x.z<=54&&x.cat!=='ng')).slice(0,4);const best=set.reduce((p,c)=>c.en>p.en?c:p);return{q:'Ktorý z prvkov má najväčšiu elektronegativitu?',a:best.n,o:shuffle(set.map(x=>x.n)),x:set.map(x=>`${x.s} ${fmt(x.en,2)}`).join(' · ')}},
+   ()=>{const set=shuffle(E.filter(x=>x.cat==='am'&&x.z<=55)).slice(0,3);const best=set.reduce((p,c)=>c.z>p.z?c:p);return{q:'Ktorý alkalický kov bude s vodou reagovať najbúrlivejšie?',a:best.n,o:shuffle(set.map(x=>x.n)),x:`Nadol v skupine je valenčný elektrón ďalej od jadra a odtrhne sa ľahšie – ${best.n} je najreaktívnejší z ponuky.`}}];
+  const stat=STATIC_Q.filter(s=>s.l<=L).map(s=>()=>({q:s.q,a:s.a,o:shuffle([s.a,...s.w]),x:s.x}));
+  const gens=L===1?g1:L===2?[...g1.slice(0,3),...g2,...g2,...stat]:[...g2,...g3,...g3,...stat,...stat];
+  let guard=0;while(out.length<10&&guard++<200){const q=pick(gens)();if(seen.has(q.q))continue;seen.add(q.q);q.o=q.o.map(String);q.a=String(q.a);if(!q.o.includes(q.a))q.o[0]=q.a;out.push(q)}return out}
+function startQuiz(){const Q={qs:quizQs(),i:0,score:0};$('#playhome').hidden=true;const box=$('#quizbox');box.hidden=false;
+  function show(){const q=Q.qs[Q.i];box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="kicker">Otázka ${Q.i+1} z ${Q.qs.length}</span><button class="btn sm" id="qquit">Ukončiť</button></div><div class="progressbar"><i style="width:${Q.i/Q.qs.length*100}%"></i></div>
+    <div class="qtext">${esc(q.q)}</div><div class="opts">${q.o.map(o=>`<button class="opt">${esc(o)}</button>`).join('')}</div><div class="expl" id="qexpl"></div><div class="row" style="margin-top:12px"><button class="btn pri" id="qnext" hidden>${Q.i+1<Q.qs.length?'Ďalšia otázka':'Výsledok'}</button></div>`;
+    $('#qquit').onclick=()=>{box.hidden=true;$('#playhome').hidden=false;renderBest()};
+    $$('.opt',box).forEach(b=>b.onclick=()=>{const ok=b.textContent===q.a;if(ok)Q.score++;$$('.opt',box).forEach(x=>{x.disabled=true;if(x.textContent===q.a)x.classList.add('right')});if(!ok)b.classList.add('wrong');
+      $('#qexpl').innerHTML=`<b style="color:var(${ok?'--good':'--bad'})">${ok?pick(['Správne.','Presne tak.','Áno!','Výborne.']):pick(['Nie celkom.','Tentoraz nie.','Skoro.'])}</b> ${esc(q.x)}`;$('#qnext').hidden=false;$('#qnext').focus()});
+    $('#qnext').onclick=()=>{Q.i++;Q.i<Q.qs.length?show():done()}}
+  function done(){const best=Math.max(LS.get('quiz'+S.lvl,0),Q.score);LS.set('quiz'+S.lvl,best);box.innerHTML=`<div class="kicker">Výsledok</div><div class="qtext" style="font-size:40px">${Q.score} / ${Q.qs.length}</div><p class="lead">${Q.score>=9?'Výborne – tabuľku prvkov máš v malíčku.':Q.score>=6?'Dobrá práca. Ďalšie kolo prinesie nové otázky.':'Pozri sa na karty prvkov a laboratóriá, potom skús znova – otázky budú iné.'}</p><div class="row" style="margin-top:12px"><button class="btn pri" id="qagain">Nové kolo</button><button class="btn" id="qback">Späť</button></div>`;
+    $('#qagain').onclick=startQuiz;$('#qback').onclick=()=>{box.hidden=true;$('#playhome').hidden=false;renderBest()}}
+  show()}
+$('#startquiz').onclick=startQuiz;
+function renderBest(){const h=LS.get('hunt'+S.lvl,null),q=LS.get('quiz'+S.lvl,null);$('#besthunt').textContent=h==null?'zatiaľ bez výsledku':`najlepšie: ${h}/8`;$('#bestquiz').textContent=q==null?'zatiaľ bez výsledku':`najlepšie: ${q}/10`}
+
+const fmt2=(n,d=2)=>Number(n).toLocaleString('sk-SK',{minimumFractionDigits:d,maximumFractionDigits:d}).replace('-','−');
+/* ================= LAB: galvanický článok ================= */
+const METALS=[
+ {z:12,s:'Mg',E:-2.37,q:2,el:'#C9CED3',sol:'rgba(190,210,225,.20)',salt:'MgSO₄'},
+ {z:30,s:'Zn',E:-0.76,q:2,el:'#9AA6AE',sol:'rgba(190,210,225,.20)',salt:'ZnSO₄'},
+ {z:26,s:'Fe',E:-0.44,q:2,el:'#727A82',sol:'rgba(140,200,140,.30)',salt:'FeSO₄'},
+ {z:82,s:'Pb',E:-0.13,q:2,el:'#56606B',sol:'rgba(190,210,225,.20)',salt:'Pb(NO₃)₂'},
+ {z:29,s:'Cu',E:0.34,q:2,el:'#C46A3A',sol:'rgba(30,105,225,.55)',salt:'CuSO₄'},
+ {z:47,s:'Ag',E:0.80,q:1,el:'#D5DADE',sol:'rgba(190,210,225,.20)',salt:'AgNO₃'}];
+const MBY=Object.fromEntries(METALS.map(m=>[m.s,m]));
+const LED_V=1.8;
+function chg(q){return q>1?q+'+':'+'}
+function mname(m){return E[m.z-1].n}
+function cellV(a,b){return Math.abs(a.E-b.E)}
+function galvEq(an,ca){const l=an.q*ca.q/(an.q===ca.q?an.q:1);const ka=l/an.q,kc=l/ca.q;const k=n=>n>1?n:'';
+  return{ox:`${an.s} → ${an.s}${sup(chg(an.q))} + ${an.q>1?an.q+' ':''}e⁻`,red:`${ca.s}${sup(chg(ca.q))} + ${ca.q>1?ca.q+' ':''}e⁻ → ${ca.s}`,
+    all:`${k(ka)}${an.s} + ${k(kc)}${ca.s}${sup(chg(ca.q))} → ${k(ka)}${an.s}${sup(chg(an.q))} + ${k(kc)}${ca.s}`}}
+function mountGalv(root){
+  const st={L:MBY.Zn,R:MBY.Cu,bridge:true,n:1,prog:0,el:[],ionsA:[],ionsC:[],dep:[],bri:[],lvl:-1,goal:null,dead:false,flash:0};
+  for(let i=0;i<16;i++)st.el.push(i/16);
+  for(let i=0;i<10;i++)st.bri.push({u:Math.random(),neg:i%2===0});
+  const metalBtns=side=>METALS.map(m=>`<button data-side="${side}" data-m="${m.s}"><b>${m.s}</b> ${mname(m)}</button>`).join('');
+  root.innerHTML=`<div class="stage"><canvas class="cv" id="gcv" style="aspect-ratio:4/3.3;max-height:600px" aria-label="Galvanický článok: dve kadičky s kovovými elektródami spojené drôtom cez voltmeter a soľným mostíkom"></canvas>
+   <div class="panel">
+    <div class="card"><h3>Zostav článok</h3>
+     <div class="kicker" style="margin:4px 0">Ľavá kadička</div><div class="swatches" id="gL">${metalBtns('L')}</div>
+     <div class="kicker" style="margin:10px 0 4px">Pravá kadička</div><div class="swatches" id="gR">${metalBtns('R')}</div>
+     <div class="ctlrow" style="margin-top:8px"><span class="lbl">Článkov za sebou</span><button class="stepbtn" id="gnm" aria-label="Menej článkov">−</button><span class="n" id="gn">1</span><button class="stepbtn" id="gnp" aria-label="Viac článkov">+</button></div>
+     <div class="row" style="margin-top:8px"><button class="btn sm" id="gbr" aria-pressed="true">Soľný mostík: zapojený</button><button class="btn sm" id="greset">Nový článok</button></div>
+    </div>
+    <div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div><div class="kicker">Voltmeter</div><div class="readout mono" id="gv">1,10 V</div></div>
+      <div class="ledbox"><div class="led" id="gled"></div><span>LED<br><small>od ${fmt2(LED_V,1)} V</small></span></div></div>
+     <div class="caption" id="gcap" style="font-size:14px;margin-top:8px"></div><div id="geq" class="geq"></div></div>
+    <div class="card"><h3>Úloha</h3><div id="ggoal" class="caption"></div><div class="swatches" id="gopts"></div><div class="row" style="margin-top:8px"><button class="btn pri" id="gcheck">Skontroluj</button><button class="btn" id="gnew">Iná úloha</button></div><div class="fb" id="gfb"></div></div>
+    <details class="why"><summary>Prečo bez soľného mostíka nič netečie?</summary><p>Z anódy odchádzajú do roztoku kladné ióny a pri katóde kladné ióny ubúdajú. Bez mostíka by sa jedna kadička rýchlo nabila kladne a druhá záporne – a tento náboj by ďalšie elektróny zastavil. Ióny v mostíku (napríklad K⁺ a NO₃⁻) prechádzajú medzi kadičkami a náboje vyrovnávajú. Obvod sa uzavrie: elektróny tečú drôtom, ióny roztokom.</p></details>
+    <details class="why"><summary>Ako funguje citrónová batéria?</summary><p>Zinkový klinec a medená minca zapichnuté do citróna tvoria taký istý článok. Šťava citróna je elektrolyt a nahrádza roztoky aj mostík. Jeden citrón dá menej ako 1 V a veľmi malý prúd, preto na rozsvietenie LED treba zapojiť niekoľko citrónov za sebou – presne ako tu pridávaš články.</p></details>
+   </div></div>`;
+  const anode=()=>st.L.E<=st.R.E?st.L:st.R, cath=()=>st.L.E<=st.R.E?st.R:st.L;
+  const flows=()=>st.bridge&&st.L!==st.R&&!st.dead;
+  const V1=()=>flows()?cellV(st.L,st.R):0;
+  const Vt=()=>V1()*st.n;
+  function sync(){
+    $$('#gL button,#gR button',root).forEach(b=>b.setAttribute('aria-pressed',(b.dataset.side==='L'?st.L:st.R).s===b.dataset.m));
+    $('#gn').textContent=st.n;$('#gbr').setAttribute('aria-pressed',st.bridge);$('#gbr').textContent=st.bridge?'Soľný mostík: zapojený':'Soľný mostík: vybratý';
+    const v=Vt();$('#gv').textContent=`${fmt2(v,2)} V`;const led=$('#gled');led.classList.toggle('on',v>=LED_V);led.style.setProperty('--b',Math.min(1,(v-LED_V+.4)/1.2));
+    st.lvl=-1;text()}
+  function text(){if(st.lvl===S.lvl)return;st.lvl=S.lvl;const a=anode(),c=cath(),L=S.lvl;let cap='',eq='';
+    if(st.L===st.R)cap=`V oboch kadičkách je ${mname(st.L)}. Dve rovnaké elektródy nemajú medzi sebou žiadny rozdiel – voltmeter ukazuje 0 V. Vymeň jeden z kovov.`;
+    else if(!st.bridge)cap='Soľný mostík je vybratý, obvod nie je uzavretý. Elektróny by síce mohli tiecť drôtom, ale ióny nemajú cestu medzi kadičkami – nič netečie a voltmeter ukazuje 0 V.';
+    else if(st.dead)cap=`Článok sa vybil: ${mname(a)} sa takmer celý rozpustil a ióny ${c.s}${sup(chg(c.q))} v roztoku sa minuli. Stlač „Nový článok“.`;
+    else if(L===1)cap=`${cap1(mname(a))} sa pomaly rozpúšťa a púšťa do drôtu drobné častice – elektróny. Tie bežia drôtom cez voltmeter na druhú stranu. Tam sa z roztoku usádza nový kov – ${mname(c)}. Tak vzniká elektrický prúd.`;
+    else if(L===2)cap=`Anóda (−) je ${mname(a)}: atómy strácajú elektróny a ako ióny ${a.s}${sup(chg(a.q))} prechádzajú do roztoku – oxidácia. Katóda (+) je ${mname(c)}: ióny ${c.s}${sup(chg(c.q))} z roztoku prijímajú elektróny a usadzujú sa ako kov – redukcia. Elektróny tečú drôtom od anódy ku katóde, ióny v mostíku uzatvárajú obvod.`;
+    else{cap=`U = E°(katóda) − E°(anóda) = ${fmt2(c.E,2)} − (${fmt2(a.E,2)}) = ${fmt2(cellV(a,c),2)} V${st.n>1?` · ${st.n} články za sebou: ${fmt2(Vt(),2)} V`:''}. Čím ďalej sú kovy od seba v rade napätí, tým väčšie napätie.`;}
+    if(L>=2&&flows()){const g=galvEq(a,c);eq=`<div><span class="kicker">oxidácia (anóda)</span> ${g.ox}</div><div><span class="kicker">redukcia (katóda)</span> ${g.red}</div>${L>=3?`<div><span class="kicker">spolu</span> ${g.all}</div>`:''}`}
+    $('#gcap').innerHTML=cap;$('#geq').innerHTML=eq}
+  function cap1(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+  function reset(){st.prog=0;st.dead=false;st.ionsA=[];st.ionsC=[];st.dep=[];sync()}
+  $$('#gL button,#gR button',root).forEach(b=>b.onclick=()=>{const m=MBY[b.dataset.m];if(b.dataset.side==='L')st.L=m;else st.R=m;reset()});
+  $('#gnm').onclick=()=>{st.n=Math.max(1,st.n-1);sync()};$('#gnp').onclick=()=>{st.n=Math.min(4,st.n+1);sync()};
+  $('#gbr').onclick=()=>{st.bridge=!st.bridge;sync()};$('#greset').onclick=reset;
+  /* úlohy – skladajú sa náhodne, na vyšších úrovniach pribúda uvažovanie */
+  function newGoal(){$('#gfb').textContent='';$('#gfb').className='fb';$('#gopts').innerHTML='';const L=S.lvl;
+    const pairs=[];METALS.forEach((a,i)=>METALS.forEach((b,j)=>{if(i<j)pairs.push([a,b])}));
+    const T=[];
+    T.push(()=>{const[a,b]=pick(pairs.filter(p=>cellV(...p)<LED_V&&cellV(...p)>.3));const need=Math.ceil(LED_V/cellV(a,b)-1e-9);
+      return{txt:`Rozsvieť LED pomocou článkov ${mname(a)} – ${mname(b)}. Použi čo najmenej článkov za sebou.`,check:()=>{const ok=new Set([st.L.s,st.R.s]);if(!(ok.has(a.s)&&ok.has(b.s)&&st.L!==st.R))return`Použi kovy ${a.s} a ${b.s}.`;if(!st.bridge)return'Bez soľného mostíka obvod nefunguje.';if(Vt()<LED_V)return`Napätie ${fmt2(Vt(),2)} V nestačí – LED potrebuje aspoň ${fmt2(LED_V,1)} V.`;if(st.n>need)return`LED svieti, ale dá sa to aj s menším počtom článkov.`;return true},ok:`Áno – ${need}× ${fmt2(cellV(a,b),2)} V = ${fmt2(need*cellV(a,b),2)} V.`}});
+    if(L>=1)T.push(()=>{const[a,b]=pick(pairs);return{txt:`Ktorý kov sa v článku ${mname(a)} – ${mname(b)} bude rozpúšťať?`,opts:shuffle([a,b]).map(m=>[m.s,mname(m)]),ans:(a.E<b.E?a:b).s,ok:`${cap1(mname(a.E<b.E?a:b))} je reaktívnejší kov – ľahšie stráca elektróny, preto sa rozpúšťa.`}});
+    if(L>=2){T.push(()=>{const[a,b]=pick(pairs);const v=cellV(a,b);return{txt:`Zostav jeden článok s napätím ${fmt2(v,2)} V.`,check:()=>{if(st.n!==1)return'Nechaj len jeden článok.';if(!st.bridge)return'Zapoj soľný mostík.';return Math.abs(V1()-v)<.005?true:`Teraz máš ${fmt2(V1(),2)} V. Skús inú dvojicu kovov.`},ok:'Presne tak.'}});
+      T.push(()=>({txt:'Zostav jeden článok s čo najvyšším napätím.',check:()=>st.n!==1?'Nechaj len jeden článok.':!st.bridge?'Zapoj soľný mostík.':Math.abs(V1()-cellV(MBY.Mg,MBY.Ag))<.005?true:`Máš ${fmt2(V1(),2)} V. Hľadaj kovy, ktoré sú od seba v rade napätí čo najďalej.`,ok:`Horčík a striebro: ${fmt2(cellV(MBY.Mg,MBY.Ag),2)} V. Sú na opačných koncoch radu.`}));
+      T.push(()=>{const[a,b]=pick(pairs);const an=a.E<b.E?a:b;return{txt:`V článku ${a.s} | ${b.s} – ktorá elektróda je katóda (+)?`,opts:shuffle([a,b]).map(m=>[m.s,mname(m)]),ans:(an===a?b:a).s,ok:`Na katóde prebieha redukcia – ióny ${(an===a?b:a).s} z roztoku prijímajú elektróny.`}})}
+    if(L>=3){T.push(()=>{const[a,b]=pick(pairs.filter(p=>p[0].q!==p[1].q||Math.random()<.4));const an=a.E<b.E?a:b,ca=an===a?b:a;const g=galvEq(an,ca);const wrong=[`${an.s}${sup(chg(an.q))} + ${ca.s} → ${an.s} + ${ca.s}${sup(chg(ca.q))}`,`${ca.s} + ${an.s}${sup(chg(an.q))} → ${ca.s}${sup(chg(ca.q))} + ${an.s}`,g.all.replace(/^\d/,'')];
+        const o=[...new Set([g.all,...wrong])].slice(0,3);return{txt:`Ktorá rovnica opisuje dej v článku ${an.s} | ${ca.s}?`,opts:shuffle(o).map(x=>[x,x]),ans:g.all,ok:`Anóda ${an.s} sa oxiduje, ióny ${ca.s}${sup(chg(ca.q))} sa redukujú; počet odovzdaných a prijatých elektrónov musí byť rovnaký.`}});
+      T.push(()=>({txt:'Študent tvrdí: „Keď zväčším elektródy na dvojnásobok, napätie článku sa zdvojnásobí.“ Ako to overíš?',opts:shuffle([['a','Napätie sa nezmení – závisí od druhu kovov. Väčšie elektródy dajú väčší prúd a dlhšiu výdrž.'],['b','Áno, napätie rastie s plochou elektród.'],['c','Napätie sa zdvojnásobí len pri medi.']]),ans:'a',ok:'Napätie určuje rozdiel elektródových potenciálov, nie veľkosť. Napätie zväčšíš zapojením článkov za sebou.'}))}
+    st.goal=pick(T)();$('#ggoal').innerHTML=st.goal.txt;$('#gcheck').hidden=!!st.goal.opts;
+    if(st.goal.opts){$('#gopts').innerHTML=st.goal.opts.map(([k,t])=>`<button data-k="${esc(k)}">${t}</button>`).join('');
+      $$('#gopts button',root).forEach(b=>b.onclick=()=>{const ok=b.dataset.k===st.goal.ans;$('#gfb').innerHTML=ok?'✓ '+st.goal.ok:'Nie celkom. Pomôže rad napätí: vľavo sú reaktívnejšie kovy.';$('#gfb').className='fb '+(ok?'ok':'no');b.style.borderColor=ok?'var(--good)':'var(--bad)'})}}
+  $('#gcheck').onclick=()=>{if(!st.goal||!st.goal.check)return;const r=st.goal.check();$('#gfb').textContent=r===true?'✓ '+st.goal.ok:r;$('#gfb').className='fb '+(r===true?'ok':'no')};
+  $('#gnew').onclick=newGoal;
+  sync();newGoal();
+  return loop((dt,t)=>{const cv=$('#gcv',root);if(!cv)return;const{ctx,w,h}=fitCanvas(cv);const k=C();ctx.clearRect(0,0,w,h);text();
+    const v=V1(),on=v>0,a=anode(),c=cath();
+    if(on&&!RM){st.prog=Math.min(1,st.prog+dt*.006*(.5+v));if(st.prog>=1&&!st.dead){st.dead=true;sync()}}
+    const fs=Math.max(11,w*.032);ctx.font=`700 ${fs}px ${getComputedStyle(document.body).fontFamily}`;ctx.textAlign='center';ctx.textBaseline='middle';
+    const bx={L:w*.27,R:w*.73},bw=w*.32,bt=h*.46,bb=h*.95,lq=bt+(bb-bt)*.1,wy=h*.13,et=h*.33,eb=bb-h*.05;
+    const isA=side=>(side==='L'?st.L:st.R)===a&&st.L!==st.R;
+    // kadičky + roztok
+    ['L','R'].forEach(sd=>{const m=sd==='L'?st.L:st.R,x=bx[sd];let col=m.sol;
+      if(!isA(sd)&&m.s==='Cu'&&st.L!==st.R)col=`rgba(30,105,225,${(.55*(1-.8*st.prog)).toFixed(3)})`;
+      ctx.fillStyle=col;ctx.fillRect(x-bw/2+3,lq,bw-6,bb-lq-3);
+      ctx.strokeStyle=k.ink;ctx.globalAlpha=.55;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x-bw/2,bt);ctx.lineTo(x-bw/2,bb);ctx.lineTo(x+bw/2,bb);ctx.lineTo(x+bw/2,bt);ctx.stroke();ctx.globalAlpha=1;
+      ctx.fillStyle=k.muted;ctx.font=`600 ${fs*.8}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText(`roztok ${m.salt}`,x,bb-h*.025)});
+    // soľný mostík
+    const bl=bx.L+bw*.3,br=bx.R-bw*.3,by0=lq+h*.1,byt=h*.38;
+    if(st.bridge){ctx.strokeStyle=k.ink;ctx.globalAlpha=.18;ctx.lineWidth=w*.034;ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(bl,by0);ctx.lineTo(bl,byt);ctx.lineTo(br,byt);ctx.lineTo(br,by0);ctx.stroke();ctx.globalAlpha=1;
+      const len=(by0-byt)*2+(br-bl);
+      st.bri.forEach(p=>{if(on)p.u=(p.u+dt*.05*(p.neg?-1:1)*(a===st.L?1:-1)+1)%1;let d=p.u*len,x,y;if(d<by0-byt){x=bl;y=by0-d}else if(d<by0-byt+br-bl){x=bl+(d-(by0-byt));y=byt}else{x=br;y=byt+(d-(by0-byt)-(br-bl))}
+        circle(ctx,x,y,Math.max(3,w*.009),p.neg?'#E3B23C':'#D265A6')});
+      ctx.fillStyle=k.muted;ctx.font=`600 ${fs*.75}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText('soľný mostík (K⁺, NO₃⁻)',w/2,byt-h*.035)}
+    else{ctx.fillStyle=k.bad;ctx.font=`800 ${fs*.85}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText('mostík chýba',w/2,byt);ctx.font=`600 ${fs*.7}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText('obvod je prerušený',w/2,byt+fs*1.1)}
+    // elektródy
+    const ew=w*.05;
+    ['L','R'].forEach(sd=>{const m=sd==='L'?st.L:st.R,x=bx[sd];const A=isA(sd),Cc=!A&&st.L!==st.R;const ww=ew*(A?1-.55*st.prog:Cc?1+.3*st.prog:1);
+      ctx.fillStyle=m.el;ctx.fillRect(x-ww/2,et,ww,eb-et);ctx.strokeStyle=k.ink;ctx.globalAlpha=.35;ctx.lineWidth=1;ctx.strokeRect(x-ww/2,et,ww,eb-et);ctx.globalAlpha=1;
+      if(A&&st.prog>.05){ctx.fillStyle=k.surface;for(let i=0;i<8;i++){const yy=lq+(eb-lq)*((i*.13+.05)%1);circle(ctx,x+(i%2?ww/2:-ww/2),yy,2+st.prog*3,col0())}}
+      const sx=x+(sd==='L'?-1:1)*bw*.3;ctx.fillStyle=k.ink;ctx.font=`800 ${fs*1.25}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText(m.s,sx,et+h*.035);
+      if(st.L!==st.R){ctx.font=`700 ${fs*.8}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillStyle=A?k.bad:k.accent;
+        ctx.fillText(S.lvl===1?(A?'rozpúšťa sa':'kov pribúda'):(A?'anóda (−)':'katóda (+)'),sx,et+h*.085)}});
+    function col0(){return getComputedStyle(document.documentElement).getPropertyValue('--surface')}
+    // drôt + voltmeter
+    const pts=[[bx[a===st.L?'L':'R'],et],[bx[a===st.L?'L':'R'],wy],[bx[a===st.L?'R':'L'],wy],[bx[a===st.L?'R':'L'],et]];
+    ctx.strokeStyle=k.ink;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(bx.L,et);ctx.lineTo(bx.L,wy);ctx.lineTo(bx.R,wy);ctx.lineTo(bx.R,et);ctx.stroke();
+    const segs=[];let tot=0;for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);segs.push(l);tot+=l}
+    if(on&&st.L!==st.R)st.el=st.el.map(u=>(u+dt*(.04+.05*v)*(RM?.3:1))%1);
+    if(on)st.el.forEach(u=>{let d=u*tot,i=0;while(i<segs.length-1&&d>segs[i]){d-=segs[i];i++}const f=d/segs[i];const x=lerp(pts[i][0],pts[i+1][0],f),y=lerp(pts[i][1],pts[i+1][1],f);circle(ctx,x,y,Math.max(3.5,w*.011),k.electron);});
+    const mr=Math.min(w*.085,h*.09);circle(ctx,w/2,wy,mr,k.surface,k.ink,2.5);ctx.fillStyle=k.ink;ctx.font=`800 ${fs*.95}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText(fmt2(Vt(),2),w/2,wy-mr*.18);ctx.font=`700 ${fs*.7}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText('V',w/2,wy+mr*.45);
+    if(st.n>1){ctx.fillStyle=k.accent;ctx.font=`800 ${fs*.8}px ${getComputedStyle(document.body).fontFamily}`;ctx.fillText(`${st.n} články za sebou`,w/2,wy+mr+fs*.9)}
+    if(on&&st.L!==st.R){ctx.fillStyle=k.electron;ctx.font=`700 ${fs*.75}px ${getComputedStyle(document.body).fontFamily}`;const dir=a===st.L?1:-1;ctx.fillText(dir>0?'e⁻ →':'← e⁻',w/2+dir*w*.2,wy-fs*.9)}
+    // ióny
+    const ax=bx[a===st.L?'L':'R'],cx=bx[a===st.L?'R':'L'];
+    if(on&&Math.random()<dt*(2+3*v)&&st.ionsA.length<26)st.ionsA.push({x:ax+(Math.random()<.5?-1:1)*ew*.6,y:lerp(lq+10,eb,Math.random()),vx:(Math.random()<.5?-1:1)*(12+Math.random()*16),vy:(Math.random()-.5)*10,life:0});
+    if(on&&Math.random()<dt*(2+3*v)&&st.ionsC.length<22)st.ionsC.push({x:cx+(Math.random()<.5?-1:1)*bw*.42,y:lerp(lq+10,eb-8,Math.random()),life:0});
+    const ir=Math.max(4,w*.012);
+    st.ionsA=st.ionsA.filter(p=>{p.life+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.995;if(Math.abs(p.x-ax)>bw*.45)p.vx*=-1;const al=Math.min(1,p.life*2)*Math.max(0,1-(p.life-5)/2);if(al<=0)return false;ctx.globalAlpha=al;circle(ctx,p.x,p.y,ir,a.el,k.ink,1);ctx.globalAlpha=al*.9;ctx.fillStyle=k.ink;ctx.font=`800 ${ir*1.3}px sans-serif`;ctx.fillText('+',p.x,p.y+.5);ctx.globalAlpha=1;return true});
+    st.ionsC=st.ionsC.filter(p=>{p.life+=dt;const dx=cx-p.x;p.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*(18+20*v));if(Math.abs(cx-p.x)<ew*.6){if(st.dep.length<60)st.dep.push({x:cx+(Math.random()-.5)*ew*1.2,y:p.y});return false}
+      ctx.globalAlpha=Math.min(1,p.life*2);circle(ctx,p.x,p.y,ir,c.s==='Cu'?'#3B7BE0':c.el,k.ink,1);ctx.fillStyle=c.s==='Cu'?'#fff':k.ink;ctx.font=`800 ${ir*1.3}px sans-serif`;ctx.fillText('+',p.x,p.y+.5);ctx.globalAlpha=1;return true});
+    st.dep.forEach(d=>circle(ctx,d.x,d.y,Math.max(2,w*.006),c.el));
+    ctx.textAlign='start';
+  });
+}
+
+/* ================= KARTIČKY ================= */
+const LATQ=[1,6,7,8,11,15,16,19,26,29,47,50,51,79,80,82];
+const DECKS={
+ common:{n:'Najčastejšie prvky',z:()=>COMMON.slice()},
+ first20:{n:'Prvých 20 prvkov',z:()=>E.slice(0,20).map(e=>e.z)},
+ latin:{n:'Značky z latinčiny',z:()=>LATQ.slice(),min:2},
+ metals:{n:'Kovy okolo nás',z:()=>[3,11,12,13,19,20,22,24,26,28,29,30,47,50,78,79,80,82]},
+ all:{n:'Celá tabuľka (1–118)',z:()=>E.map(e=>e.z),min:3}};
+const DIRS={sn:{n:'Značka → názov',min:1},ns:{n:'Názov → značka',min:1},ln:{n:'Latinsky → názov',min:2}};
+const FC={deck:'common',dir:'sn'};
+function startCards(){$('#playhome').hidden=true;const box=$('#cardbox');box.hidden=false;cardSetup()}
+function cardBack(){$('#cardbox').hidden=true;$('#playhome').hidden=false;renderBest()}
+function cardSetup(){const box=$('#cardbox');const L=S.lvl;
+  if((DECKS[FC.deck].min||1)>L)FC.deck='common';if((DIRS[FC.dir].min||1)>L)FC.dir='sn';
+  box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="kicker">Kartičky na opakovanie</span><button class="btn sm" id="fcquit">Späť</button></div>
+   <h2 style="font-size:clamp(24px,3.6vw,32px)">Precvič si značky prvkov</h2>
+   <p class="lead">Ťukni na kartičku a otoč ju. Keď odpoveď vieš, daj „Viem“. Ak nie, kartička sa vráti o pár kôl neskôr – kým ich nevieš všetky.</p>
+   <div class="card"><h3>Sada</h3><div class="swatches" id="fcdeck">${Object.entries(DECKS).filter(([k,d])=>(d.min||1)<=L).map(([k,d])=>`<button data-k="${k}" aria-pressed="${k===FC.deck}">${d.n}</button>`).join('')}</div>
+    <h3 style="margin-top:12px">Smer</h3><div class="swatches" id="fcdir">${Object.entries(DIRS).filter(([k,d])=>(d.min||1)<=L).map(([k,d])=>`<button data-k="${k}" aria-pressed="${k===FC.dir}">${d.n}</button>`).join('')}</div>
+    <div class="row" style="margin-top:14px"><button class="btn pri" id="fcgo">Začať</button><span class="pill" id="fcinfo"></span></div></div>`;
+  const info=()=>$('#fcinfo').textContent=`${DECKS[FC.deck].z().length} kartičiek`;info();
+  $$('#fcdeck button').forEach(b=>b.onclick=()=>{FC.deck=b.dataset.k;$$('#fcdeck button').forEach(x=>x.setAttribute('aria-pressed',x===b));info()});
+  $$('#fcdir button').forEach(b=>b.onclick=()=>{FC.dir=b.dataset.k;$$('#fcdir button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+  $('#fcquit').onclick=cardBack;$('#fcgo').onclick=()=>cardRun(shuffle(DECKS[FC.deck].z()))}
+function cardRun(zs){const box=$('#cardbox');const st={q:zs.slice(),total:zs.length,known:0,miss:new Set(),flip:false};
+  function face(e){const d=FC.dir;
+    const front=d==='sn'?`<div class="fc-big">${e.s}</div><div class="fc-hint">Ako sa volá tento prvok?</div>`:d==='ns'?`<div class="fc-big fc-word">${e.n}</div><div class="fc-hint">Aká je jeho značka?</div>`:`<div class="fc-big fc-word"><i>${e.la}</i></div><div class="fc-hint">Ktorý je to prvok?</div>`;
+    const back=`<div class="fc-big">${e.s}</div><div class="fc-name">${e.n}</div><div class="fc-lat">lat. <i>${e.la}</i></div><div class="fc-meta">${e.z}. prvok · ${CAT[e.cat].n}</div>${ETYM[e.s]&&S.lvl>=2?`<div class="fc-ety">${esc(ETYM[e.s])}</div>`:''}`;
+    return{front,back}}
+  function show(){if(!st.q.length)return done();const e=E[st.q[0]-1];const f=face(e);st.flip=false;
+    box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="kicker">${DECKS[FC.deck].n} · ${DIRS[FC.dir].n}</span><button class="btn sm" id="fcquit">Ukončiť</button></div>
+     <div class="progressbar"><i style="width:${st.known/st.total*100}%"></i></div><div class="fc-count mono">${st.known} / ${st.total} viem</div>
+     <button class="fcard" id="fcard" aria-label="Otočiť kartičku" style="--c:${CAT[e.cat].c}"><span class="fc-in"><span class="fc-f">${f.front}<span class="fc-tap">ťukni a otoč</span></span><span class="fc-b">${f.back}</span></span></button>
+     <div class="row fc-btns"><button class="btn" id="fcno" disabled>Ešte nie</button><button class="btn pri" id="fcyes" disabled>Viem</button><button class="iconbtn" id="fcsay" aria-label="Prečítať nahlas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg></button></div>`;
+    const flip=()=>{st.flip=!st.flip;$('#fcard').classList.toggle('on',st.flip);$('#fcno').disabled=$('#fcyes').disabled=false};
+    $('#fcard').onclick=flip;$('#fcquit').onclick=cardSetup;$('#fcsay').onclick=()=>speak(`${e.n}. Značka ${e.s.split('').join(' ')}.`);
+    $('#fcyes').onclick=()=>{st.q.shift();st.known++;show()};
+    $('#fcno').onclick=()=>{const z=st.q.shift();st.miss.add(z);st.q.splice(Math.min(st.q.length,3+Math.floor(Math.random()*3)),0,z);show()};
+    box.onkeydown=ev=>{if(ev.key===' '||ev.key==='Enter'){if(ev.target.id!=='fcard'&&ev.target.tagName==='BUTTON')return;ev.preventDefault();flip()}else if(st.flip&&ev.key==='ArrowRight')$('#fcyes').click();else if(st.flip&&ev.key==='ArrowLeft')$('#fcno').click()};
+    $('#fcard').focus({preventScroll:true})}
+  function done(){const m=[...st.miss];box.innerHTML=`<div class="kicker">Hotovo</div><div class="qtext" style="font-size:34px">Všetkých ${st.total} kartičiek</div>
+    <p class="lead">${m.length?`Napoprvé nešli: ${m.map(z=>E[z-1].s).join(', ')}. Tie si môžeš zopakovať ešte raz.`:'Všetky si vedel(a) hneď napoprvé. Skús ťažšiu sadu alebo opačný smer.'}</p>
+    <div class="row" style="margin-top:12px">${m.length?'<button class="btn pri" id="fcmiss">Zopakuj tie, čo nešli</button>':''}<button class="btn" id="fcagain">Celá sada znova</button><button class="btn" id="fcset">Iná sada</button></div>`;
+    if(m.length)$('#fcmiss').onclick=()=>cardRun(shuffle(m));$('#fcagain').onclick=()=>cardRun(shuffle(DECKS[FC.deck].z()));$('#fcset').onclick=cardSetup}
+  show()}
+
+/* ================= TLAČ PRE TRIEDU ================= */
+const PR={type:'blind',blind:'z'};
+function startPrint(){$('#playhome').hidden=true;const box=$('#printbox');box.hidden=false;printUI()}
+function printUI(){const box=$('#printbox');
+  box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="kicker">Pre učiteľa · tlač</span><button class="btn sm" id="prquit">Späť</button></div>
+   <h2 style="font-size:clamp(24px,3.6vw,32px)">Podklady do triedy</h2>
+   <p class="lead">Pracovný list sa skladá podľa úrovne zvolenej hore a pri každom „Nové zadanie“ je iný. Riešenie je na samostatnej strane.</p>
+   <div class="card noprint"><div class="swatches" id="prtype"><button data-k="blind">Slepá tabuľka</button><button data-k="sheet">Pracovný list s riešením</button><button data-k="cards">Kartičky na vystrihnutie</button></div>
+    <div class="swatches" id="prblind" style="margin-top:8px"><button data-k="empty">Úplne prázdna</button><button data-k="z">S protónovými číslami</button><button data-k="part">Niektoré značky doplnené</button></div>
+    <div class="row" style="margin-top:12px"><button class="btn pri" id="prgo">Vytlačiť</button><button class="btn" id="prnew">Nové zadanie</button><button class="btn" id="prdl">Stiahnuť na tlač (HTML)</button></div>
+    <p style="font-size:13px;color:var(--muted);margin:8px 0 0">Ak sa tlač v článku neotvorí (niektoré stránky ju vo vloženom okne blokujú), stiahni súbor a vytlač ho z prehliadača.</p></div>
+   <div class="paperwrap"><div class="paper" id="paper"></div></div>`;
+  const sync=()=>{$$('#prtype button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===PR.type));$$('#prblind button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===PR.blind));$('#prblind').hidden=PR.type!=='blind';$('#prnew').hidden=PR.type==='blind'&&PR.blind!=='part';render()};
+  const render=()=>{$('#paper').innerHTML=PR.type==='blind'?printBlind():PR.type==='sheet'?printSheet():printCards()};
+  $$('#prtype button').forEach(b=>b.onclick=()=>{PR.type=b.dataset.k;sync()});$$('#prblind button').forEach(b=>b.onclick=()=>{PR.blind=b.dataset.k;sync()});
+  $('#prnew').onclick=render;$('#prquit').onclick=()=>{box.hidden=true;$('#playhome').hidden=false};
+  $('#prgo').onclick=()=>{document.documentElement.classList.add('printing');try{window.print()}catch(e){}setTimeout(()=>document.documentElement.classList.remove('printing'),400)};
+  $('#prdl').onclick=()=>{const html=`<!doctype html><html lang="sk"><head><meta charset="utf-8"><title>Laboratórium 118 – tlač</title><style>${PRINTCSS}</style></head><body><div class="paper">${$('#paper').innerHTML}</div><script>window.onload=()=>setTimeout(()=>print(),300)<\/script></body></html>`;
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));a.download=`lab118-${PR.type}.html`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)};
+  sync()}
+const PRINTCSS=`body{margin:0;font-family:'Atkinson Hyperlegible',Arial,sans-serif;color:#000;background:#fff}
+.paper{background:#fff;color:#000;padding:12mm;font-size:11pt;line-height:1.4}
+.paper h1{font-size:18pt;margin:0 0 2mm}.paper h2{font-size:13pt;margin:5mm 0 2mm}
+.prh{display:flex;justify-content:space-between;gap:6mm;border-bottom:1.5px solid #000;padding-bottom:2mm;margin-bottom:4mm;font-size:10pt}
+.bt{display:grid;grid-template-columns:repeat(18,1fr);gap:1px;margin-top:3mm}
+.bt div{border:1px solid #333;aspect-ratio:1/1.1;position:relative;font-size:7pt}
+.bt div b{position:absolute;inset:0;display:grid;place-items:center;font-size:11pt}
+.bt div span{position:absolute;top:1px;left:2px;font-size:6pt}
+.bt .gap{border:0}.bt .gl{border:0;font-size:7pt;display:grid;place-items:center;color:#555}
+.task{margin:0 0 3.5mm;break-inside:avoid}.task ol{margin:1mm 0 0;padding-left:6mm}.task li{margin:.6mm 0}
+.ln{display:inline-block;min-width:28mm;border-bottom:1px solid #000;height:1em}
+.key{break-before:page;page-break-before:always}.key li{margin:.5mm 0}
+.cuts{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.cut{border:1px dashed #777;height:38mm;display:grid;place-content:center;text-align:center;break-inside:avoid}
+.cut b{font-size:30pt;line-height:1}.cut small{font-size:8pt}.cut i{font-size:10pt}
+@page{size:A4;margin:8mm}`;
+function printHead(t){return`<h1>${t}</h1><div class="prh"><span>Meno: ______________________</span><span>Trieda: ______</span><span>Dátum: __________</span></div>`}
+function printBlind(){const filled=new Set(PR.blind==='part'?shuffle(E.filter(e=>e.z<=36).map(e=>e.z)).slice(0,12).concat([1,8]):[]);
+  const grid=[];for(let r=0;r<10;r++)for(let c=0;c<18;c++)grid.push(null);
+  E.forEach(e=>{grid[(e.row-1)*18+(e.col-1)]=e});
+  let h=printHead('Periodická tabuľka prvkov')+`<p style="margin:0 0 2mm">${PR.blind==='empty'?'Doplň do tabuľky značky prvkov, ktoré poznáš. Vyznač kovy a nekovy.':PR.blind==='z'?'Podľa protónových čísel doplň značky prvkov. Farebne odlíš skupiny.':'Niektoré značky sú doplnené. Doplň ostatné prvky prvých štyroch periód.'}</p><div class="bt">`;
+  grid.forEach((e,i)=>{const r=Math.floor(i/18);if(r===7){h+='<div class="gap"></div>';return}
+    if(!e){h+='<div class="gap"></div>';return}
+    h+=`<div>${PR.blind!=='empty'?`<span>${e.z}</span>`:''}${filled.has(e.z)?`<b>${e.s}</b>`:''}</div>`});
+  return h+'</div>'}
+function printSheet(){const L=S.lvl;const com=COMMON.map(z=>E[z-1]);
+  const fill=shuffle(com).slice(0,6);const half=fill.slice(0,3),half2=fill.slice(3);
+  const qs=quizQs().slice(0,8);const letters='abcd';
+  let h=printHead(`Prvky a ich vlastnosti · ${L===1?'1.–5. ročník':L===2?'ZŠ 6.–9. ročník':'SŠ'}`);
+  h+=`<div class="task"><b>1. Doplň značku alebo názov prvku.</b><ol>${half.map(e=>`<li>${e.n} → <span class="ln"></span></li>`).join('')}${half2.map(e=>`<li>${e.s} → <span class="ln"></span></li>`).join('')}</ol></div>`;
+  if(L>=2){const lq=shuffle(LATQ).slice(0,4).map(z=>E[z-1]);h+=`<div class="task"><b>2. Z ktorého latinského názvu pochádza značka?</b><ol>${lq.map(e=>`<li>${e.s} (${e.n}) → <span class="ln"></span></li>`).join('')}</ol></div>`;
+    const at=shuffle(E.slice(2,20)).slice(0,3);h+=`<div class="task"><b>3. Doplň počet častíc v neutrálnom atóme.</b><ol>${at.map(e=>`<li>${sup(String(MAINISO[e.z-1]))}${e.s}: p⁺ <span class="ln" style="min-width:12mm"></span> n⁰ <span class="ln" style="min-width:12mm"></span> e⁻ <span class="ln" style="min-width:12mm"></span></li>`).join('')}</ol></div>`;h+=`<div class="task" style="display:none" data-at='${JSON.stringify(at.map(e=>e.z))}'></div>`;}
+  const n0=L>=2?4:2;
+  h+=`<div class="task"><b>${n0}. Zakrúžkuj správnu odpoveď.</b><ol>${qs.map(q=>`<li>${esc(q.q)}<br>${q.o.map((o,i)=>`${letters[i]}) ${esc(o)}`).join(' &nbsp; ')}</li>`).join('')}</ol></div>`;
+  if(L>=2){const pair=pick([[MBY.Zn,MBY.Cu],[MBY.Mg,MBY.Cu],[MBY.Fe,MBY.Ag],[MBY.Zn,MBY.Ag],[MBY.Pb,MBY.Ag]]);h+=`<div class="task"><b>${n0+1}. Galvanický článok ${pair[0].s} | ${pair[1].s}.</b> ${L>=3?`E°(${pair[0].s}) = ${fmt2(pair[0].E,2)} V, E°(${pair[1].s}) = ${fmt2(pair[1].E,2)} V.`:''}<ol><li>Ktorý kov sa rozpúšťa? <span class="ln"></span></li><li>Ktorým smerom tečú elektróny v drôte? <span class="ln" style="min-width:50mm"></span></li>${L>=3?'<li>Vypočítaj napätie článku. <span class="ln"></span></li><li>Koľko takých článkov treba zapojiť za sebou na LED (1,8 V)? <span class="ln"></span></li>':''}</ol></div>`;
+    PR._pair=pair}
+  // riešenie
+  let k=`<div class="key"><h2>Riešenie</h2><ol><li>${fill.map(e=>`${e.n} – ${e.s}`).join('; ')}</li>`;
+  if(L>=2){const m=h.match(/data-at='([^']+)'/);const at=m?JSON.parse(m[1]):[];
+    const lqDone=[...h.matchAll(/<li>(\w+) \(([^)]+)\) → /g)].map(x=>BYSYM[x[1]]).filter(Boolean);
+    k+=`<li>${lqDone.map(e=>`${e.s} – ${e.la}`).join('; ')}</li><li>${at.map(z=>{const A=MAINISO[z-1];return`${E[z-1].s}: ${z} p⁺, ${A-z} n⁰, ${z} e⁻`}).join('; ')}</li>`}
+  k+=`<li>${qs.map((q,i)=>`${i+1}${letters[q.o.indexOf(q.a)]}`).join(', ')}<ol style="font-size:9pt">${qs.map(q=>`<li>${esc(q.a)} – ${esc(q.x)}</li>`).join('')}</ol></li>`;
+  if(L>=2&&PR._pair){const[a,b]=PR._pair;const v=cellV(a,b);k+=`<li>Rozpúšťa sa ${mname(a)} (anóda). Elektróny tečú od ${a.s} k ${b.s}.${L>=3?` U = ${fmt2(b.E,2)} − (${fmt2(a.E,2)}) = ${fmt2(v,2)} V; na LED treba ${Math.ceil(LED_V/v-1e-9)} článk${Math.ceil(LED_V/v-1e-9)===1?'':'y'}.`:''}</li>`}
+  return h.replace(/<div class="task" style="display:none"[^>]*><\/div>/,'')+k+'</ol></div>'}
+function printCards(){const set=(S.lvl>=2?shuffle(LATQ.concat(COMMON.filter(z=>!LATQ.includes(z)))):shuffle(COMMON.slice())).slice(0,16).map(z=>E[z-1]);
+  return printHead('Kartičky na vystrihnutie')+`<p style="margin:0 0 3mm">Vystrihni kartičky. Na zadnú stranu napíš názov prvku${S.lvl>=2?' a jeho latinský názov':''} – alebo hraj pexeso so spolužiakom.</p><div class="cuts">${set.map(e=>`<div class="cut"><small>${e.z}</small><b>${e.s}</b>${S.lvl>=2?'<i>&nbsp;</i>':''}</div>`).join('')}</div><h2 style="margin-top:6mm">Druhá sada – názvy</h2><div class="cuts">${set.map(e=>`<div class="cut"><b style="font-size:14pt">${e.n}</b>${S.lvl>=2?`<i>${e.la}</i>`:''}</div>`).join('')}</div>`}
+
+/* ================= vloženie do iframe ================= */
+const EMB=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+if(EMB)document.documentElement.classList.add('emb');
+(function embedTools(){
+  const fsOK=document.fullscreenEnabled||document.webkitFullscreenEnabled;
+  const tr=$('.top-in');if(!tr)return;
+  if(EMB&&fsOK){const b=document.createElement('button');b.className='iconbtn fsbtn';b.setAttribute('aria-label','Celá obrazovka');b.title='Celá obrazovka';
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+    b.onclick=()=>{const d=document,el=d.documentElement;try{if(d.fullscreenElement||d.webkitFullscreenElement)(d.exitFullscreen||d.webkitExitFullscreen).call(d);else(el.requestFullscreen||el.webkitRequestFullscreen).call(el)}catch(e){}};tr.appendChild(b)}
+  if(EMB&&/^https?:/.test(location.protocol)){const a=document.createElement('a');a.className='iconbtn fsbtn';a.href=location.href.split('#')[0];a.target='_blank';a.rel='noopener';a.setAttribute('aria-label','Otvoriť v novom okne');a.title='Otvoriť v novom okne';
+    a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';tr.appendChild(a)}
+  // výška pre stránky, ktoré si iframe prispôsobujú podľa obsahu
+  if(EMB&&'ResizeObserver' in window){let last=0;new ResizeObserver(()=>{const hh=Math.ceil(document.documentElement.scrollHeight);if(Math.abs(hh-last)>4){last=hh;try{parent.postMessage({type:'lab118:height',height:hh},'*')}catch(e){}}}).observe(document.body)}
+})();
+
+$('#startcards').onclick=startCards;$('#startprint').onclick=startPrint;
+const PRSTYLE=document.createElement('style');PRSTYLE.textContent=PRINTCSS.replace(/^body\{[^}]*\}\n?/,'').replace(/@page\{[^}]*\}/,'')+'@media print{@page{size:A4;margin:8mm}}';document.head.appendChild(PRSTYLE);
+/* ================= init ================= */
+buildLensbar();buildTable();setLvl(S.lvl);applyLens();renderInfoDefault();renderLabCards();renderMap();
+const h0=(location.hash||'').slice(1);if(['map','lab','play'].includes(h0))go(h0);else if(LABS.some(l=>l.id===h0))openLab(h0);else if(h0==='kartičky'||h0==='karticky'){go('play');startCards()}
+</script>
+
+</body></html>
